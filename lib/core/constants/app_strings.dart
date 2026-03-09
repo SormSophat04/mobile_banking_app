@@ -1,9 +1,12 @@
 class AppStrings {
+  // Initail
+  static const String ok = "Ok";
+
   /// App
   static const String appName = "FinPay";
 
   /// Onboarding
-  static const String welcome = "Welcome";
+  static const String welcome = "Welcome to FinPay!";
   static const String getStarted = "Get Started";
   static const String continueText = "Continue";
 
@@ -13,6 +16,17 @@ class AppStrings {
   static const String signIn = "Sign In";
   static const String signUp = "Sign Up";
   static const String logout = "Logout";
+  static const String changePassword = "Change Password";
+  static const String sendCode = "Send Code";
+  static const String verifyCode = "Verify Code";
+  static const String confirmPass = "Confirm password";
+  static const String typeNewPassword = "Type your new password";
+  static const String typephoneNumber = "Type your phone number";
+  static const String typeCode = "Type your code";
+  static const String changeNumber = "Change your phone number";
+  static const String changePasswordSuccess = "Password changed successfully!";
+  static const String msgChangePassSuccess =
+      "You have successfully change password. Please use the new password when Sign in.";
 
   static const String email = "Email";
   static const String password = "Password";
