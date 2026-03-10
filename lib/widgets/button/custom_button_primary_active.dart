@@ -12,7 +12,7 @@ class CustomButtonPrimaryActive extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 44,
+        height: 48,
         width: double.infinity,
         decoration: BoxDecoration(
           color: AppColors.primary,

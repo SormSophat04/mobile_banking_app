@@ -37,19 +37,19 @@ class AppTextStyles {
   static const TextStyle body3 = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w500,
-    color: AppColors.white,
+    color: AppColors.grey,
   );
 
   /// CAPTION
   static const TextStyle caption1 = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w600,
-    color: AppColors.grey,
+    color: AppColors.primary,
   );
 
   static const TextStyle caption2 = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w500,
-    color: AppColors.grey,
+    color: AppColors.primaryLight,
   );
 }
