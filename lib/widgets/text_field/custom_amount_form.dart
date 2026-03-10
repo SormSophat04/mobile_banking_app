@@ -3,27 +3,21 @@ import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
 
 /// The Reusable Custom Input Field
-class CustomInputField extends StatelessWidget {
+class CustomAmountForm extends StatelessWidget {
   final String? label;
   final String? hint;
   final String? text;
   final String? caption;
-  final Widget? prefixIcon;
-  final Widget? prefixWidget;
-  final Widget? suffixIcon;
   final Widget? suffixWidget;
   final Color? textColor;
   final TextInputType? keybaordType;
 
-  const CustomInputField({
+  const CustomAmountForm({
     super.key,
     this.label,
     this.hint,
     this.text,
     this.caption,
-    this.prefixIcon,
-    this.prefixWidget,
-    this.suffixIcon,
     this.suffixWidget,
     this.textColor,
     this.keybaordType,
@@ -44,7 +38,7 @@ class CustomInputField extends StatelessWidget {
             style: TextStyle(
               color: Colors.grey.shade500,
               fontSize: 14,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: 6),
@@ -60,8 +54,6 @@ class CustomInputField extends StatelessWidget {
             filled: true,
             hintText: hint,
             hintStyle: AppTextStyles.body3,
-            prefixIcon: prefixWidget ??prefixIcon,
-            suffixIcon: suffixWidget ?? suffixIcon,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),

@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/modules/home/views/home_view.dart';
 import 'package:mobile_banking_app/modules/main_layout/controller/main_layout_controller.dart';
+import 'package:mobile_banking_app/modules/search/view/search_view.dart';
+import 'package:mobile_banking_app/modules/setting/view/setting_view.dart';
 
 class BottomNavItem {
   final String icon;
@@ -22,9 +24,9 @@ class MainLayoutView extends StatelessWidget {
 
   final List _pages = [
     HomeView(),
-    Container(color: Colors.blue),
+    SearchView(),
     Container(color: Colors.green),
-    Container(color: Colors.yellow),
+    SettingView(),
   ];
 
   @override

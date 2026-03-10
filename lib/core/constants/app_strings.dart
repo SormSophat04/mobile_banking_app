@@ -4,6 +4,7 @@ class AppStrings {
 
   /// App
   static const String appName = "FinPay";
+  static const String search = "Search";
 
   /// Onboarding
   static const String welcome = "Welcome to FinPay!";

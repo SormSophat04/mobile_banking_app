@@ -18,7 +18,7 @@ class CustomButtonPrimaryActive extends StatelessWidget {
           color: AppColors.primary,
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Center(child: Text(label, style: AppTextStyles.body1)),
+        child: Center(child: Text(label, style: AppTextStyles.title3)),
       ),
     );
   }
