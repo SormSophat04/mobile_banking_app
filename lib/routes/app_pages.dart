@@ -5,7 +5,9 @@ import 'package:mobile_banking_app/modules/auth/views/reset_password_view.dart';
 import 'package:mobile_banking_app/modules/auth/views/reset_success_view.dart';
 import 'package:mobile_banking_app/modules/auth/views/sing_up_view.dart';
 import 'package:mobile_banking_app/modules/auth/views/verify_code_view.dart';
+import 'package:mobile_banking_app/modules/home/views/home_view.dart';
 import 'package:mobile_banking_app/modules/main_layout/view/main_layout_view.dart';
+import 'package:mobile_banking_app/modules/search/view/search_view.dart';
 import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class AppPages {
@@ -27,7 +29,11 @@ class AppPages {
       page: () => const ResetSuccessView(),
     ),
 
-    // Home Screen
+    // Main Layout
     GetPage(name: AppRoutes.MAIN_LAYOUT, page: () => MainLayoutView()),
+    GetPage(name: AppRoutes.HOME, page: () => HomeView()),
+    GetPage(name: AppRoutes.SEARCH, page: () => SearchView()),
+    // GetPage(name: AppRoutes.MESSAGE, page: () => MainLayoutView()),
+    // GetPage(name: AppRoutes.SETTINGS, page: () => MainLayoutView()),
   ];
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_assets.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
@@ -14,19 +15,20 @@ class CustomPopBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => Get.back(),
       child: Container(
-        height: 53,
+        height: 58,
         width: double.infinity,
         // color: bg ? AppColors.darkGrey : null,
-        padding: EdgeInsets.symmetric(horizontal: 24),
+        // color: Colors.lightBlueAccent,
+        padding: EdgeInsets.only(left: 22.dg, top: 12.dg),
         child: Row(
           children: [
             Image.asset(
               AppAssets.arrowBack,
-              width: 16,
-              height: 16,
+              width: 18,
+              height: 18,
               color: bg ? AppColors.white : AppColors.black,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 18.w),
             Text(
               text,
               style: bg
