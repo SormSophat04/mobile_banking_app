@@ -18,16 +18,19 @@ class ExchageView extends StatelessWidget {
 
   Widget _buildBody() {
     return SafeArea(
-      child: Column(
-        children: [
-          CustomPopBar(text: 'Exchange'),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-            child: Image.asset(AppAssets.imageIll5),
-          ),
-          SizedBox(height: 24.h),
-          _buildCardTransfer(),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            CustomPopBar(text: 'Exchange'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Image.asset(AppAssets.imageIll5),
+            ),
+            SizedBox(height: 24.h),
+            _buildCardTransfer(),
+            SizedBox(height: 24.h),
+          ],
+        ),
       ),
     );
   }
@@ -45,6 +48,7 @@ class ExchageView extends StatelessWidget {
         children: [
           CustomInputField(
             label: 'From',
+            keybaordType: TextInputType.number,
             suffixWidget: Container(
               width: 90.w,
               margin: EdgeInsets.symmetric(vertical: 6.dg),
@@ -64,6 +68,7 @@ class ExchageView extends StatelessWidget {
           SizedBox(height: 8.h),
           CustomInputField(
             label: 'To',
+            keybaordType: TextInputType.number,
             suffixWidget: Container(
               width: 90.w,
               margin: EdgeInsets.symmetric(vertical: 6.dg),

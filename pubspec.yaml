@@ -38,6 +38,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   flutter_native_splash: ^2.4.7
   google_fonts: ^8.0.2
+  card_slider: ^1.0.6
 
 dev_dependencies:
   flutter_test:

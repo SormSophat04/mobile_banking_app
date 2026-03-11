@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_assets.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
+import 'package:mobile_banking_app/modules/home/controllers/credit_card_controller.dart';
+import 'package:mobile_banking_app/modules/home/widgets/custom_credit_card.dart';
 import 'package:mobile_banking_app/modules/home/widgets/custom_grid_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
   @override
-  Widget build(_) {
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primaryLight,
       appBar: PreferredSize(
@@ -106,25 +109,23 @@ class HomeView extends StatelessWidget {
           topRight: Radius.circular(28),
         ),
       ),
-      child: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10.h),
-            _buildCreditCard(),
-            CustomGridView(),
-            SizedBox(height: 28.h),
-          ],
-        ),
+      child: GetBuilder<CreditCardController>(
+        builder: (controller) {
+          return SingleChildScrollView(
+            physics: controller.dragOverMap.value
+                ? const NeverScrollableScrollPhysics()
+                : const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CustomCreditCard(),
+                CustomGridView(),
+                SizedBox(height: 28.h),
+              ],
+            ),
+          );
+        },
       ),
-    );
-  }
-
-  Widget _buildCreditCard() {
-    return SizedBox(
-      width: double.infinity,
-      child: Image.asset(AppAssets.multiCard),
     );
   }
 }

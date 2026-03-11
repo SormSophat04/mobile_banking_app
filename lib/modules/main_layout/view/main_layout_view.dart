@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/modules/home/views/home_view.dart';
 import 'package:mobile_banking_app/modules/main_layout/controller/main_layout_controller.dart';
+import 'package:mobile_banking_app/modules/message/view/message_view.dart';
 import 'package:mobile_banking_app/modules/search/view/search_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/setting_view.dart';
 
@@ -22,12 +23,7 @@ class BottomNavItem {
 class MainLayoutView extends StatelessWidget {
   MainLayoutView({super.key});
 
-  final List _pages = [
-    HomeView(),
-    SearchView(),
-    Container(color: Colors.green),
-    SettingView(),
-  ];
+  final List _pages = [HomeView(), SearchView(), MessageView(), SettingView()];
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +95,7 @@ class MainLayoutView extends StatelessWidget {
           color: isSelected ? Colors.white : AppColors.grey,
           width: isSelected ? 20.sp : 24.sp,
           height: isSelected ? 20.sp : 24.sp,
-        ), // AnimatedSize handles the smooth expansion of the pill shape
+        ),
         AnimatedSize(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutQuint,
@@ -115,7 +111,7 @@ class MainLayoutView extends StatelessWidget {
                     ),
                   ),
                 )
-              : const SizedBox.shrink(), // Takes up 0 space when inactive
+              : const SizedBox.shrink(),
         ),
       ],
     );

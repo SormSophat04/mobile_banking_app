@@ -32,8 +32,8 @@ class AppAssets {
   static const String checkIcon = '$icons/47.png';
 
   // Home Screen
-  static const String yellowCard = '$image/card1.png';
-  static const String blueCard = '$image/card2.png';
+  static const String yellowCard = '$image/card2.png';
+  static const String blueCard = '$image/card1.png';
   static const String multiCard = '$image/Multi.png';
 
   static const String notification = '$icons/34.png';
@@ -60,6 +60,13 @@ class AppAssets {
 
   // Setting Screen
   static const String arrowRight = '$icons/38.png';
+
+  // Message Screen
+  static const String bankIcon = '$icons/Group 334.png';
+  static const String accIcon = '$icons/Group 334-1.png';
+  static const String alertIcon = '$icons/Group 334-2.png';
+  static const String paypalIcon = '$icons/Group 334-3.png';
+  static const String withdrawIcon = '$icons/Group 334-4.png';
 
   // Flag
   static const String flagAr = '$flag/AR.png';
