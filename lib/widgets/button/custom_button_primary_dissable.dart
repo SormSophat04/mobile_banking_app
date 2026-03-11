@@ -16,13 +16,21 @@ class CustomButtonPrimaryDissable extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 44,
+        height: 48,
         width: double.infinity,
         decoration: BoxDecoration(
           color: AppColors.primaryBackground,
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Center(child: Text(label, style: AppTextStyles.body1)),
+        child: Center(
+          child: Text(
+            label,
+            style: AppTextStyles.body1.copyWith(
+              color: AppColors.black,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ),
     );
   }

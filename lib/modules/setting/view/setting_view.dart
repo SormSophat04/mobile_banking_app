@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_assets.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
+import 'package:mobile_banking_app/modules/setting/controller/setting_controller.dart';
 import 'package:mobile_banking_app/modules/setting/widgets/custom_setting_item.dart';
 
 class SettingView extends StatelessWidget {
@@ -21,7 +23,7 @@ class SettingView extends StatelessWidget {
         children: [
           Column(
             children: [
-              SizedBox(height: 100.h),
+              SizedBox(height: 70.h),
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
@@ -33,7 +35,7 @@ class SettingView extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      SizedBox(height: 120.h),
+                      SizedBox(height: 110.h),
                       Expanded(child: _buildItems()),
                     ],
                   ),
@@ -41,19 +43,22 @@ class SettingView extends StatelessWidget {
               ),
             ],
           ),
-          Positioned(top: 60, left: 0, right: 0, child: _buildProfile()),
+          Positioned(top: 30, left: 0, right: 0, child: _buildProfile()),
         ],
       ),
     );
   }
 
   Widget _buildItems() {
-    return ListView.builder(
-      itemCount: 5,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      itemBuilder: (context, index) => CustomSettingItem(),
+    return GetBuilder<SettingController>(
+      builder: (controller) => ListView.builder(
+        itemCount: controller.settingsItems.length,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        itemBuilder: (context, index) =>
+            CustomSettingItem(title: controller.settingsItems[index]),
+      ),
     );
   }
 
@@ -74,7 +79,7 @@ class SettingView extends StatelessWidget {
         ),
         SizedBox(height: 10.h),
         Text(
-          'Setting',
+          'Username',
           style: TextStyle(
             fontSize: 18.sp,
             fontWeight: FontWeight.w600,

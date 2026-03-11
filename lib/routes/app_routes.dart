@@ -20,4 +20,15 @@ class AppRoutes {
   static const String INTEREST_RATE = '/interest-rate';
   static const String EXCHANGE_RATE = '/exchange-rate';
   static const String EXCHANGE = '/exchange';
+
+  // Home Screens ->
+  static const String CARD_AND_ACCOUNT = '/card-and-account';
+  static const String TRANSFER = '/transfer';
+  static const String WITHDRAW = '/withdraw';
+  static const String PREPAID = '/prepaid';
+  static const String PAY_BILL = '/pay-bill';
+  static const String SAVE_ONLINE = '/save-online';
+  static const String CREDIT_CARD = '/credit-card';
+  static const String TRANSACTION = '/transaction';
+  static const String BENEFICIARY = '/beneficiary';
 }

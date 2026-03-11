@@ -4,14 +4,34 @@ import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/modules/search/controller/search_menu_controller.dart';
 import 'package:mobile_banking_app/modules/search/widgets/custom_search_card.dart';
-import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
 
 class SearchView extends StatelessWidget {
   const SearchView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: AppColors.white, body: _buildBody());
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      appBar: _buildAppBar(),
+      body: _buildBody(),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.white,
+      title: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Text(
+          'Search',
+          style: TextStyle(
+            color: AppColors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildBody() {
@@ -19,7 +39,6 @@ class SearchView extends StatelessWidget {
       builder: (controller) => SafeArea(
         child: Column(
           children: [
-            CustomPopBar(text: 'Search'),
             SizedBox(height: 10.h),
             Expanded(
               child: ListView.builder(
@@ -30,8 +49,10 @@ class SearchView extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
                 itemBuilder: (context, index) => GestureDetector(
                   onTap: () {
-                    controller.page[index];
-                    Get.to(() => controller.page[index]);
+                    final route = controller.cardItems[index]['route'];
+                    if (route != null) {
+                      Get.toNamed(route);
+                    }
                   },
                   child: CustomSearchCard(
                     title: controller.cardItems[index]['title']!,

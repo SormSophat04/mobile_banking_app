@@ -19,9 +19,14 @@ class CustomGridView extends StatelessWidget {
         ),
         itemBuilder: (context, index) => Padding(
           padding: const EdgeInsets.all(8.0),
-          child: CustomMenuCard(
-            icon: controller.menuItems[index]['icon'] ?? '',
-            label: controller.menuItems[index]['label'] ?? '',
+          child: GestureDetector(
+            onTap: () {
+              Get.toNamed(controller.menuItems[index]['route'] ?? '');
+            },
+            child: CustomMenuCard(
+              icon: controller.menuItems[index]['icon'] ?? '',
+              label: controller.menuItems[index]['label'] ?? '',
+            ),
           ),
         ),
       ),
