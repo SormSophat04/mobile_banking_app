@@ -1,32 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_shadows.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
-import 'package:mobile_banking_app/modules/home/controllers/withdraw_controller.dart';
 
 class CustomGridChooseAmount extends StatelessWidget {
-  const CustomGridChooseAmount({super.key});
+  const CustomGridChooseAmount({
+    super.key,
+    required this.amounts,
+    required this.selectedIndex,
+    required this.onSelect,
+  });
+
+  final List<String> amounts;
+  final int? selectedIndex;
+  final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<WithdrawController>(
-      builder: (controller) => GridView.builder(
-        itemCount: controller.amounts.length,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 12.0,
-          mainAxisSpacing: 14.0,
-          childAspectRatio: 1.5,
-        ),
-        itemBuilder: (context, index) => _buildGridItem(
-          controller.amounts[index],
-          isSelected: controller.selectedIndex == index,
-          onTap: () => controller.selectAmount(index),
-        ),
+    return GridView.builder(
+      itemCount: amounts.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 12.0,
+        mainAxisSpacing: 14.0,
+        childAspectRatio: 1.5,
+      ),
+      itemBuilder: (context, index) => _buildGridItem(
+        amounts[index],
+        isSelected: selectedIndex == index,
+        onTap: () => onSelect(index),
       ),
     );
   }

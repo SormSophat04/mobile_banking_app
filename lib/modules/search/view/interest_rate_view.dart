@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mobile_banking_app/core/constants/app_assets.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
 
-class ExchageRateView extends StatelessWidget {
-  const ExchageRateView({super.key});
+class InterestRateView extends StatelessWidget {
+  const InterestRateView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +15,7 @@ class ExchageRateView extends StatelessWidget {
     return SafeArea(
       child: Column(
         children: [
-          CustomPopBar(text: 'Exchange rate'),
+          CustomPopBar(text: 'Interest rate'),
           SizedBox(height: 12.h),
           _buildHeader(),
           SizedBox(height: 24.h),
@@ -26,7 +25,7 @@ class ExchageRateView extends StatelessWidget {
               shrinkWrap: true,
               physics: BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 24.w),
-              itemBuilder: (context, index) => _buildExchangeItems(),
+              itemBuilder: (context, index) => _buildInterestItems(),
             ),
           ),
         ],
@@ -34,7 +33,7 @@ class ExchageRateView extends StatelessWidget {
     );
   }
 
-  Widget _buildExchangeItems() {
+  Widget _buildInterestItems() {
     return Container(
       height: 34.h,
       margin: EdgeInsets.only(bottom: 16.h),
@@ -47,23 +46,17 @@ class ExchageRateView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Image.asset(AppAssets.flagUs1, width: 24.w, height: 24.h),
-              SizedBox(width: 12.w),
-              Text(
-                "United States",
-                style: TextStyle(
-                  color: AppColors.black,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+          Text(
+            "Individual customers",
+            style: TextStyle(
+              color: AppColors.black,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           Spacer(),
           Text(
-            "1.0224",
+            "2M",
             style: TextStyle(
               color: AppColors.black,
               fontSize: 14.sp,
@@ -72,9 +65,9 @@ class ExchageRateView extends StatelessWidget {
           ),
           SizedBox(width: 24.w),
           Text(
-            "1.3243",
+            "4.22%",
             style: TextStyle(
-              color: AppColors.black,
+              color: AppColors.primary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -90,7 +83,7 @@ class ExchageRateView extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            "Currency",
+            "Interest kind",
             style: TextStyle(
               color: Colors.grey.shade500,
               fontSize: 16,
@@ -99,16 +92,16 @@ class ExchageRateView extends StatelessWidget {
           ),
           Spacer(),
           Text(
-            "Buy",
+            "Deposit",
             style: TextStyle(
               color: Colors.grey.shade500,
               fontSize: 16,
               fontWeight: FontWeight.w700,
             ),
           ),
-          SizedBox(width: 44.w),
+          SizedBox(width: 28.w),
           Text(
-            "Sell",
+            "Rate",
             style: TextStyle(
               color: Colors.grey.shade500,
               fontSize: 16,

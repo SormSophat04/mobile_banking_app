@@ -25,9 +25,23 @@ class AppStrings {
   static const String typephoneNumber = "Type your phone number";
   static const String typeCode = "Type your code";
   static const String changeNumber = "Change your phone number";
+
+  // Success
   static const String changePasswordSuccess = "Password changed successfully!";
   static const String msgChangePassSuccess =
       "You have successfully change password. Please use the new password when Sign in.";
+
+  static const String withDrawSuccess = "Withdraw successfully!";
+  static const String msgWithDrawSuccess =
+      "You have successfully withdrawn money! Please check the balance in the card management section.";
+
+  static const String transferSuccess = "Transfer successful!";
+  static const String msgTransferSuccess =
+      "You have successfully transferred \$ 1,000 to Amanda!";
+
+  static const String paymentSuccess = "Payment success!";
+  static const String msgPaymentSuccess =
+      "You have successfully paid mobile prepaid!";
 
   static const String email = "Email";
   static const String password = "Password";

@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_assets.dart';
 
 class CreditCardController extends GetxController {
-  final GlobalKey pointerKey = GlobalKey();
-
   final List cardImages = [
     AppAssets.blueCard,
     AppAssets.yellowCard,
@@ -22,6 +20,7 @@ class CreditCardController extends GetxController {
   void checkDrag(
     Offset position,
     bool up, {
+    required GlobalKey pointerKey,
     ValueChanged<bool>? onInteractionChanged,
   }) {
     final context = pointerKey.currentContext;
