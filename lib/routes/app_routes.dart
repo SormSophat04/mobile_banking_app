@@ -13,7 +13,6 @@ class AppRoutes {
   static const String FORGOT_PASSWORD = '/forgot-password';
   static const String VERIFY_CODE = '/verify-code';
   static const String RESET_PASSWORD = '/reset-password';
-  static const String RESET_SUCCESS = '/reset-success';
 
   // Search Screen ->
   static const String BRANCH = '/branch';
@@ -27,8 +26,23 @@ class AppRoutes {
   static const String WITHDRAW = '/withdraw';
   static const String PREPAID = '/prepaid';
   static const String PAY_BILL = '/pay-bill';
+  // Pay Bill Screen <->
+  static const String ELECTRIC_BILL = '/electric-bill';
+  static const String WATER_BILL = '/water-bill';
+  static const String MOBILE_BILL = '/mobile-bill';
+  static const String INTERNET_BILL = '/internet-bill';
+
   static const String SAVE_ONLINE = '/save-online';
   static const String CREDIT_CARD = '/credit-card';
   static const String TRANSACTION = '/transaction';
   static const String BENEFICIARY = '/beneficiary';
+
+  static const String CONFIRM_TRANSFER = '/confirm-transfer';
+  static const String CONFIRM_PREPAID = '/confirm-prepaid';
+
+  // Success Screen
+  static const String RESET_SUCCESS = '/reset-success';
+  static const String TRANSFER_SUCCESS = '/transfer-success';
+  static const String WITHDRAW_SUCCESS = '/withdraw-success';
+  static const String PREPAID_SUCCESS = '/prepaid-success';
 }

@@ -4,10 +4,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:mobile_banking_app/modules/home/controllers/credit_card_controller.dart';
 
-class CustomCreditCard extends StatelessWidget {
+class CustomCreditCard extends StatefulWidget {
   const CustomCreditCard({super.key, this.onInteractionChanged});
 
   final ValueChanged<bool>? onInteractionChanged;
+
+  @override
+  State<CustomCreditCard> createState() => _CustomCreditCardState();
+}
+
+class _CustomCreditCardState extends State<CustomCreditCard> {
+  final GlobalKey _pointerKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -28,21 +35,24 @@ class CustomCreditCard extends StatelessWidget {
             controller.checkDrag(
               ev.position,
               true,
-              onInteractionChanged: onInteractionChanged,
+              pointerKey: _pointerKey,
+              onInteractionChanged: widget.onInteractionChanged,
             );
           },
           onPointerDown: (ev) {
             controller.checkDrag(
               ev.position,
               false,
-              onInteractionChanged: onInteractionChanged,
+              pointerKey: _pointerKey,
+              onInteractionChanged: widget.onInteractionChanged,
             );
           },
           onPointerCancel: (ev) {
             controller.checkDrag(
               ev.position,
               true,
-              onInteractionChanged: onInteractionChanged,
+              pointerKey: _pointerKey,
+              onInteractionChanged: widget.onInteractionChanged,
             );
           },
           child: SizedBox(
@@ -57,7 +67,7 @@ class CustomCreditCard extends StatelessWidget {
                   height: 250.h,
                   width: double.infinity,
                   child: CardSlider(
-                    key: controller.pointerKey,
+                    key: _pointerKey,
                     cards: valuesWidget,
                     slideChanged: (index) {
                       controller.onPageChanged(index);

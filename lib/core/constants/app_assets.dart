@@ -35,8 +35,15 @@ class AppAssets {
   static const String yellowCard = '$image/card2.png';
   static const String blueCard = '$image/card1.png';
   static const String multiCard = '$image/Multi.png';
+  static const String chart = '$image/Chart.png';
+  static const String electricBill = '$image/Group 547.png';
+  static const String watherBill = '$image/Group 553.png';
+  static const String mobileBill = '$image/Group 552.png';
+  static const String internetBill = '$image/Group 551.png';
 
   static const String notification = '$icons/34.png';
+  static const String checkBox1 = '$icons/46.png';
+  static const String checkBox2 = '$icons/47.png';
 
   static const String wallet = '$menu/wallet-43 1.png';
   static const String transfer = '$menu/sync-devices 1.png';
