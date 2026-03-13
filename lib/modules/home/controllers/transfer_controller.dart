@@ -13,6 +13,12 @@ class TransferController extends GetxController {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
 
+  final List<Map<String, String>> transactionTypes = [
+    {'title': 'Transfer via card number', 'icon': 'assets/icons/34.png'},
+    {'title': 'Transfer to the same bank', 'icon': 'assets/icons/09.png'},
+    {'title': 'Transfer to another bank', 'icon': 'assets/icons/33.png'},
+  ];
+
   @override
   void onInit() {
     super.onInit();

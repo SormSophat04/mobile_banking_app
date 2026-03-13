@@ -6,6 +6,7 @@ class AppAssets {
 
   // Others
   static const String arrowBack = '$icons/left-arrow.png';
+  static const String add = '$icons/12.png';
   static const String userProfile = '$image/user.png';
 
   // Bottom Navigation Icons

@@ -11,6 +11,7 @@ import 'package:mobile_banking_app/widgets/button/custom_button_primary_active.d
 import 'package:mobile_banking_app/widgets/button/custom_button_primary_dissable.dart';
 import 'package:mobile_banking_app/widgets/card/custom_add_new_card.dart';
 import 'package:mobile_banking_app/widgets/card/custom_transfer_card.dart';
+import 'package:mobile_banking_app/widgets/card/custom_user_card.dart';
 import 'package:mobile_banking_app/widgets/text_field/custom_text_field.dart';
 import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
 
@@ -112,7 +113,7 @@ class TransferView extends StatelessWidget {
     return SizedBox(
       height: 130.h,
       child: ListView.builder(
-        itemCount: 10,
+        itemCount: controller.transactionTypes.length,
         shrinkWrap: true,
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -122,6 +123,8 @@ class TransferView extends StatelessWidget {
           child: GestureDetector(
             onTap: () => controller.selectTransaction(index),
             child: CustomTransferCard(
+              icon: controller.transactionTypes[index]['icon']!,
+              title: controller.transactionTypes[index]['title']!,
               isSelected: controller.selectedTransactionIndex == index,
             ),
           ),
@@ -143,9 +146,13 @@ class TransferView extends StatelessWidget {
           padding: const EdgeInsets.only(top: 15, bottom: 25),
           child: GestureDetector(
             onTap: () => controller.selectBeneficiary(index),
-            child: CustomAddNewCard(
-              isSelected: controller.selectedBeneficiaryIndex == index,
-            ),
+            child: index == 0
+                ? CustomAddNewCard(
+                    isSelected: controller.selectedBeneficiaryIndex == index,
+                  )
+                : CustomUserCard(
+                    isSelected: controller.selectedBeneficiaryIndex == index,
+                  ),
           ),
         ),
       ),
@@ -206,7 +213,7 @@ class TransferView extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 8.w),
-                Text( 
+                Text(
                   'Save to beneficiary ',
                   style: AppTextStyles.body2.copyWith(
                     color: AppColors.black,
