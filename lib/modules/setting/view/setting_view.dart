@@ -56,8 +56,15 @@ class SettingView extends StatelessWidget {
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: 24.w),
-        itemBuilder: (context, index) =>
-            CustomSettingItem(title: controller.settingsItems[index]),
+        itemBuilder: (context, index) => GestureDetector(
+          onTap: () => Get.toNamed(
+            controller.settingsItems[index]['route']!,
+            arguments: controller.settingsItems[index]['title'],
+          ),
+          child: CustomSettingItem(
+            title: controller.settingsItems[index]['title']!,
+          ),
+        ),
       ),
     );
   }

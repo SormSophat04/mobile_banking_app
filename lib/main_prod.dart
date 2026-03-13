@@ -3,6 +3,6 @@ import 'package:mobile_banking_app/core/config/app_config.dart';
 import 'package:mobile_banking_app/core/config/flavor.dart';
 
 void main() {
-  AppConfig.init(Flavor.prod);
+  AppConfig.init(FlavorConfig.appFlavor = Flavor.prod);
   mainFlavor();
 }

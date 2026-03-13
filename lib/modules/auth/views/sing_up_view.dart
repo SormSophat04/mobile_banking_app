@@ -90,7 +90,10 @@ class SingUpView extends StatelessWidget {
     return Column(
       children: [
         controller.isFormValid
-            ? CustomButtonPrimaryActive(label: 'Sign Up', onTap: () {})
+            ? CustomButtonPrimaryActive(
+                label: 'Sign Up',
+                onTap: () => Get.toNamed(AppRoutes.MAIN_LAYOUT),
+              )
             : CustomButtonPrimaryDissable(label: 'Sign Up'),
         SizedBox(height: 14.h),
         Row(
@@ -114,10 +117,7 @@ class SingUpView extends StatelessWidget {
   Widget _buildForm(SingUpController controller) {
     return Column(
       children: [
-        CustomInputField(
-          hint: 'Name',
-          controller: controller.nameController,
-        ),
+        CustomInputField(hint: 'Name', controller: controller.nameController),
         SizedBox(height: 20.h),
         CustomInputField(
           hint: 'Phone number',

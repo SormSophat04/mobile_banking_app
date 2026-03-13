@@ -1,5 +1,7 @@
 class AppRoutes {
   static const String MAIN_LAYOUT = '/main-layout';
+  static const String SECURITY_BLOCKED = '/security-blocked';
+
 
   // Buttom Nav
   static const String HOME = '/home';
@@ -36,9 +38,18 @@ class AppRoutes {
   static const String CREDIT_CARD = '/credit-card';
   static const String TRANSACTION = '/transaction';
   static const String BENEFICIARY = '/beneficiary';
+  // Beneficiary Screen <->
+  static const String ADD_USER_BENEFICIARY = '/add-user-beneficiary';
 
   static const String CONFIRM_TRANSFER = '/confirm-transfer';
   static const String CONFIRM_PREPAID = '/confirm-prepaid';
+
+  // Setting Screen ->
+  static const String PASSWORD = '/password';
+  static const String SECURITY = '/security';
+  static const String LANGUAGE = '/language';
+  static const String APP_INFORMATION = '/app-information';
+  static const String CUSTOMER_CARE = '/customer-care';
 
   // Success Screen
   static const String RESET_SUCCESS = '/reset-success';

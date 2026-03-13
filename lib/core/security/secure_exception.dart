@@ -1,0 +1,1 @@
+class SecureException implements Exception {}

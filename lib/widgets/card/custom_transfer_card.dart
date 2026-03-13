@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mobile_banking_app/core/constants/app_assets.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_shadows.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
 
 class CustomTransferCard extends StatelessWidget {
+  final String title;
+  final String icon;
   const CustomTransferCard({
     super.key,
     this.isSelected = false,
+    required this.title,
+    required this.icon,
   });
 
   final bool isSelected;
@@ -35,14 +38,9 @@ class CustomTransferCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Image.asset(
-            AppAssets.creditCard,
-            height: 28.h,
-            width: 28.w,
-            color: AppColors.white,
-          ),
+          Image.asset(icon, height: 28.h, width: 28.w, color: AppColors.white),
           Text(
-            'abcdeeeeeee',
+            title,
             style: AppTextStyles.caption2.copyWith(
               color: AppColors.white,
               height: 1.h,

@@ -90,7 +90,10 @@ class LoginView extends StatelessWidget {
     return Column(
       children: [
         controller.isFormValid
-            ? CustomButtonPrimaryActive(label: 'Sign In', onTap: () {})
+            ? CustomButtonPrimaryActive(
+                label: 'Sign In',
+                onTap: () => Get.toNamed(AppRoutes.MAIN_LAYOUT),
+              )
             : CustomButtonPrimaryDissable(label: 'Sign In'),
         SizedBox(height: 20.h),
         Image.asset(AppAssets.fingerprinteIcon, height: 65.h, width: 65.w),
