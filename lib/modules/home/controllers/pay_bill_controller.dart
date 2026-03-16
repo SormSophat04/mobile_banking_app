@@ -8,25 +8,29 @@ class PayBillController extends GetxController {
       'title': 'Electric Bill',
       'subtitle': 'Pay electric bill this month',
       'icon': AppAssets.electricBill,
-      'route': AppRoutes.ELECTRIC_BILL,
+      'route': AppRoutes.PAY_SEARCH_CODE,
+      'status': 'electric',
     },
     {
       'title': 'Water Bill',
       'subtitle': 'Pay water bill this month',
       'icon': AppAssets.watherBill,
-      'route': AppRoutes.WATER_BILL,
+      'route': AppRoutes.PAY_SEARCH_CODE,
+      'status': 'water',
     },
     {
       'title': 'Mobile Bill',
       'subtitle': 'Pay mobile bill this month',
       'icon': AppAssets.mobileBill,
-      'route': AppRoutes.MOBILE_BILL,
+      'route': AppRoutes.PAY_SEARCH_CODE,
+      'status': 'mobile',
     },
     {
       'title': 'Internet Bill',
       'subtitle': 'Pay internet bill this month',
       'icon': AppAssets.internetBill,
-      'route': AppRoutes.INTERNET_BILL,
+      'route': AppRoutes.PAY_SEARCH_CODE,
+      'status': 'internet',
     },
   ];
 }

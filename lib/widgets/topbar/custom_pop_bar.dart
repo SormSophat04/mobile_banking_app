@@ -8,7 +8,13 @@ import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
 class CustomPopBar extends StatelessWidget {
   final bool bg;
   final String text;
-  const CustomPopBar({super.key, this.bg = false, required this.text});
+  final bool icon;
+  const CustomPopBar({
+    super.key,
+    this.bg = false,
+    required this.text,
+    this.icon = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +28,21 @@ class CustomPopBar extends StatelessWidget {
         padding: EdgeInsets.only(left: 22.dg, top: 12.dg),
         child: Row(
           children: [
-            Image.asset(
-              AppAssets.arrowBack,
-              width: 18,
-              height: 18,
-              color: bg ? AppColors.white : AppColors.black,
-            ),
-            SizedBox(width: 18.w),
+            icon == false
+                ? Container(color: Colors.amber)
+                : Image.asset(
+                    AppAssets.arrowBack,
+                    width: 18,
+                    height: 18,
+                    color: bg ? AppColors.white : AppColors.black,
+                  ),
+            SizedBox(width: icon == false ? 0 : 18.w),
             Text(
               text,
               style: bg
-                  ? AppTextStyles.title2
+                  ? AppTextStyles.title2.copyWith(
+                      fontSize: icon == false ? 18.sh : 16,
+                    )
                   : AppTextStyles.title2.copyWith(color: AppColors.black),
             ),
           ],

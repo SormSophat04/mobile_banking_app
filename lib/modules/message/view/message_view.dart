@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/modules/message/controller/message_controller.dart';
 import 'package:mobile_banking_app/modules/message/widgets/custom_msg_items.dart';
+import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
 
 class MessageView extends StatelessWidget {
   const MessageView({super.key});
@@ -11,27 +13,30 @@ class MessageView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: _buildAppBar(),
+      appBar: PreferredSize(
+        preferredSize: ScreenUtil.defaultSize,
+        child: SafeArea(child: CustomPopBar(text: 'Message', icon: false)),
+      ),
       body: _buildBody(),
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.white,
-      title: Padding(
-        padding: const EdgeInsets.only(left: 10),
-        child: Text(
-          'Message',
-          style: TextStyle(
-            color: AppColors.black,
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
+  // PreferredSizeWidget _buildAppBar() {
+  //   return AppBar(
+  //     backgroundColor: AppColors.white,
+  //     title: Padding(
+  //       padding: const EdgeInsets.only(left: 10),
+  //       child: Text(
+  //         'Message',
+  //         style: TextStyle(
+  //           color: AppColors.black,
+  //           fontSize: 22,
+  //           fontWeight: FontWeight.w600,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildBody() {
     return SafeArea(

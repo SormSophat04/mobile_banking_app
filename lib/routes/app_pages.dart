@@ -8,6 +8,9 @@ import 'package:mobile_banking_app/modules/auth/views/sing_up_view.dart';
 import 'package:mobile_banking_app/modules/auth/views/verify_code_view.dart';
 import 'package:mobile_banking_app/modules/home/views/beneficiary/add_user_beneficiary.dart';
 import 'package:mobile_banking_app/modules/home/views/beneficiary/beneficiary_view.dart';
+import 'package:mobile_banking_app/modules/home/views/pay_bill/pay_reciept_view.dart';
+import 'package:mobile_banking_app/modules/home/views/pay_bill/pay_search_code_view.dart';
+import 'package:mobile_banking_app/modules/home/views/pay_bill/pay_success_view.dart';
 import 'package:mobile_banking_app/modules/home/views/prepaid/prepaid_success_view.dart';
 import 'package:mobile_banking_app/modules/home/views/transfer/confirm_transfer_view.dart';
 import 'package:mobile_banking_app/modules/home/views/transfer/transfer_success_view.dart';
@@ -144,6 +147,27 @@ class AppPages {
     GetPage(
       name: AppRoutes.INTERNET_BILL,
       page: () => const PayBillView(),
+      middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.INTERNET_BILL,
+      page: () => const PayBillView(),
+      middlewares: [_securityMiddleware],
+    ),
+    // <->
+    GetPage(
+      name: AppRoutes.PAY_SEARCH_CODE,
+      page: () => const PaySearchCodeView(),
+      middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.PAY_RECIEPT,
+      page: () => const PayRecieptView(),
+      middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.PAY_SUCCESS,
+      page: () => const PaySuccessView(),
       middlewares: [_securityMiddleware],
     ),
 
