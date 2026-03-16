@@ -4,7 +4,13 @@ import 'package:mobile_banking_app/modules/message/view/account_security_view.da
 import 'package:mobile_banking_app/modules/message/view/bank_spp_view.dart';
 
 class MessageController extends GetxController {
-  final List<Widget> pages = [const BankSppView(), const AccountSecurityView()];
+  final List<Widget> pages = [
+    const BankSppView(),
+    const AccountSecurityView(),
+    Container(color: Colors.white),
+    Container(color: Colors.white),
+    Container(color: Colors.white),
+  ];
 
   final List<Map<String, String>> messages = [
     {

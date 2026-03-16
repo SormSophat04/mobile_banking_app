@@ -2,7 +2,6 @@ class AppRoutes {
   static const String MAIN_LAYOUT = '/main-layout';
   static const String SECURITY_BLOCKED = '/security-blocked';
 
-
   // Buttom Nav
   static const String HOME = '/home';
   static const String SEARCH = '/search';
@@ -33,6 +32,10 @@ class AppRoutes {
   static const String WATER_BILL = '/water-bill';
   static const String MOBILE_BILL = '/mobile-bill';
   static const String INTERNET_BILL = '/internet-bill';
+  // <->
+  static const String PAY_SEARCH_CODE = '/paysearchcode';
+  static const String PAY_RECIEPT = '/pay-reciept';
+  static const String PAY_SUCCESS = '/pay-success';
 
   static const String SAVE_ONLINE = '/save-online';
   static const String CREDIT_CARD = '/credit-card';
@@ -41,6 +44,7 @@ class AppRoutes {
   // Beneficiary Screen <->
   static const String ADD_USER_BENEFICIARY = '/add-user-beneficiary';
 
+  // Confirm Screen ->
   static const String CONFIRM_TRANSFER = '/confirm-transfer';
   static const String CONFIRM_PREPAID = '/confirm-prepaid';
 

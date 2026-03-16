@@ -17,17 +17,20 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(360, 690),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (_, child) {
-        return GetMaterialApp(
-          initialBinding: InitialBinding(),
-          theme: AppTheme.lightTheme,
-          debugShowCheckedModeBanner: false,
-          initialRoute: AppRoutes.LOGIN,
-          getPages: AppPages.routes,
+    return LayoutBuilder(
+      builder: (context, _) {
+        return ScreenUtilInit(
+          designSize: const Size(360, 690),
+          minTextAdapt: true,
+          splitScreenMode: true,
+          builder: (context, child) => child!,
+          child: GetMaterialApp(
+            initialBinding: InitialBinding(),
+            theme: AppTheme.lightTheme,
+            debugShowCheckedModeBanner: false,
+            initialRoute: AppRoutes.LOGIN,
+            getPages: AppPages.routes,
+          ),
         );
       },
     );

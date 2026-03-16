@@ -72,7 +72,7 @@ class MainLayoutView extends StatelessWidget {
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutQuint,
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-                margin: EdgeInsets.only(bottom: 12.h),
+                margin: EdgeInsets.only(bottom: 2.h),
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(30.r),

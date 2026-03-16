@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/modules/home/widgets/custom_credit_card.dart';
-import 'package:mobile_banking_app/widgets/bill/custom_bill.dart';
 import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
 
 class CreditCardView extends StatelessWidget {
@@ -41,20 +40,7 @@ class CreditCardView extends StatelessWidget {
         physics: BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CustomCreditCard(),
-            BillReceiptCard(
-              name: 'naem',
-              address: 'pp',
-              phoneNumber: '029326',
-              code: '11231',
-              fromDate: '23',
-              toDate: '34',
-              electricFee: 1,
-              tax: 1,
-              total: 1,
-            ),
-          ],
+          children: [CustomCreditCard()],
         ),
       ),
     );
