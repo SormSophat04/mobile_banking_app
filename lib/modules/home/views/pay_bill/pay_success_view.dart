@@ -21,6 +21,7 @@ class PaySuccessView extends StatelessWidget {
               Image.asset(AppAssets.imageIll2),
               SizedBox(height: 30.h),
               CustomButtonPrimaryActive(label: 'Confirm'),
+              CustomButtonPrimaryActive(label: 'Confirm'),
             ],
           ),
         ),
