@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
-import 'package:mobile_banking_app/modules/home/widgets/custom_credit_card.dart';
+import 'package:mobile_banking_app/widgets/card/custom_credit_card_widget.dart';
 import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
 
 class CreditCardView extends StatelessWidget {
@@ -40,7 +40,7 @@ class CreditCardView extends StatelessWidget {
         physics: BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [CustomCreditCard()],
+          children: [CustomCreditCardWidget()],
         ),
       ),
     );

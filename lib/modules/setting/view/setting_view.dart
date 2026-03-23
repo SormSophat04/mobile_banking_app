@@ -85,12 +85,14 @@ class SettingView extends StatelessWidget {
           ),
         ),
         SizedBox(height: 10.h),
-        Text(
-          'Username',
-          style: TextStyle(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.primary,
+        GetBuilder<SettingController>(
+          builder: (controller) => Text(
+            controller.customerName,
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
           ),
         ),
       ],

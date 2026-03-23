@@ -16,6 +16,8 @@ class CustomInputField extends StatelessWidget {
   final TextInputType? keybaordType;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
+  final bool isReadOnly;
+  final VoidCallback? onTap;
 
   const CustomInputField({
     super.key,
@@ -31,6 +33,8 @@ class CustomInputField extends StatelessWidget {
     this.keybaordType,
     this.controller,
     this.onChanged,
+    this.isReadOnly = false,
+    this.onTap,
   });
 
   @override
@@ -60,6 +64,8 @@ class CustomInputField extends StatelessWidget {
           initialValue: controller == null ? text : null,
           keyboardType: keybaordType,
           onChanged: onChanged,
+          readOnly: isReadOnly,
+          onTap: onTap,
           style: AppTextStyles.title3.copyWith(color: AppColors.black),
           decoration: InputDecoration(
             fillColor: Colors.transparent,

@@ -20,12 +20,16 @@ class _CustomCreditCardState extends State<CustomCreditCard> {
   Widget build(BuildContext context) {
     return GetBuilder<CreditCardController>(
       builder: (controller) {
+        if (controller.cardImages.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
         List<Widget> valuesWidget = [];
         for (int i = 0; i < controller.cardImages.length; i++) {
           valuesWidget.add(
             ClipRRect(
               borderRadius: BorderRadius.circular(22.0),
-              child: Image.asset(controller.cardImages[i]),
+              child: controller.cardImages[i],
             ),
           );
         }

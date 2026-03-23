@@ -7,6 +7,7 @@ class AppRoutes {
   static const String SEARCH = '/search';
   static const String MESSAGE = '/message';
   static const String SETTINGS = '/settings';
+  static const String VERIFY_PROFILE = '/verify-profile';
 
   // Auth
   static const String LOGIN = '/login';

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile_banking_app/core/constants/app_assets.dart';
+import 'package:mobile_banking_app/widgets/card/custom_credit_card_widget.dart';
 
 class CreditCardController extends GetxController {
-  final List cardImages = [
-    AppAssets.blueCard,
-    AppAssets.yellowCard,
-    AppAssets.blueCard,
-    AppAssets.yellowCard,
+  final List<Widget> cardImages = [
+    CustomCreditCardWidget(),
+    CustomCreditCardWidget(),
   ];
 
   var currentIndex = 0.obs;

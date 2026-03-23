@@ -35,6 +35,7 @@ import 'package:mobile_banking_app/modules/security/view/blocked_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/app_information/app_information_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/password/password_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/setting_view.dart';
+import 'package:mobile_banking_app/modules/verify_profile/view/verify_profile_view.dart';
 import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class AppPages {
@@ -267,6 +268,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.PREPAID_SUCCESS,
       page: () => const PrepaidSuccessView(),
+      middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.VERIFY_PROFILE,
+      page: () => const VerifyProfileView(),
       middlewares: [_securityMiddleware],
     ),
   ];
