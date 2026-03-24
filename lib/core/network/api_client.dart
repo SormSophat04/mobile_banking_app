@@ -19,7 +19,6 @@ class ApiClient extends GetConnect {
     if (!kIsWeb && Platform.isAndroid) {
       baseUrlStr = 'http://10.0.2.2:8080/api/';
     }
-    
     httpClient.baseUrl = baseUrlStr;
     httpClient.defaultContentType = 'application/json';
     httpClient.timeout = const Duration(seconds: 30);
@@ -36,7 +35,6 @@ class ApiClient extends GetConnect {
     // Handle 401 Unauthorized globally
     httpClient.addResponseModifier((request, response) async {
       if (response.statusCode == 401 && !request.url.path.contains('auth/login')) {
-        debugPrint('401 Unauthorized detected. Logging out.');
         await clearAuth();
         Get.offAllNamed(AppRoutes.LOGIN);
       }
@@ -149,6 +147,23 @@ class ApiClient extends GetConnect {
     return response;
   }
 
+  Future<Response> getCardsByAccount(String accountId) async {
+    final response = await get('cards/account/$accountId');
+    return response;
+  }
+
+  Future<Response> createCard({
+    required int accountId,
+    required String cardType,
+  }) async {
+    final response = await post('cards', {
+      'accountId': accountId,
+      'cardType': cardType,
+      'account': {'accountId': accountId},
+    });
+    return response;
+  }
+
   Future<Response> getTransactions(String accountId) async {
     final response = await get('transactions/account/$accountId');
     return response;
@@ -170,15 +185,7 @@ class ApiClient extends GetConnect {
       final response = await put('customers/$customerId/fcm-token', {
         'fcmToken': fcmToken,
       });
-
-      if (response.isOk) {
-        print("FCM token registered with backend for customer $customerId ✓");
-      } else {
-        debugPrint('Failed to register FCM token: ${response.statusCode} ${response.bodyString}');
-      }
-    } catch (e) {
-      debugPrint('Error registering FCM token: $e');
-    }
+    } catch (_) {}
   }
 
   /// Retrieves the locally stored FCM token.
@@ -201,13 +208,7 @@ class ApiClient extends GetConnect {
       'body': body,
       'data': data ?? {},
     };
-    print("===== Sending Push Notification =====");
-    print("To Account: $toAccountNumber");
-    print("Payload: $payload");
     final response = await post('notifications/push', payload);
-    print("Push response status: ${response.statusCode}");
-    print("Push response body: ${response.bodyString}");
-    print("=====================================");
     return response;
   }
 
@@ -220,20 +221,16 @@ class ApiClient extends GetConnect {
         final token = data['token'] ?? data['access_token'] ?? data['accessToken'] ?? data['jwt'];
         if (token != null) {
           await saveToken(token.toString());
-          debugPrint('Token refresh successful on startup');
           return true;
         }
       } else {
-        debugPrint('Token refresh failed. Status: ${response.statusCode}');
         if (response.statusCode == 401) {
           await clearAuth();
           // We don't call Get.offAllNamed here because it might fail during initial app launch
           // if GetMaterialApp hasn't been mounted yet. The 401 interceptor or AuthService will handle routing.
         }
       }
-    } catch (e) {
-      debugPrint('Error during token refresh: $e');
-    }
+    } catch (_) {}
     return false;
   }
 }

@@ -78,6 +78,51 @@ class TransferController extends GetxController {
     }
   }
 
+  String get selectedAccountNumberForQr =>
+      selectedAccountModel?.accountNumber?.trim() ?? '';
+
+  bool get canGenerateQr => selectedAccountNumberForQr.isNotEmpty;
+
+  String buildScanPayQrPayload() => selectedAccountNumberForQr;
+
+  bool applyScannedQrPayload(String payload) {
+    final normalizedPayload = payload.trim();
+    if (normalizedPayload.isEmpty) {
+      return false;
+    }
+
+    String accountNumber = normalizedPayload;
+
+    // Supports plain account number and JSON payloads:
+    // {"accountNumber":"00112233"}
+    try {
+      final decoded = jsonDecode(normalizedPayload);
+      if (decoded is Map<String, dynamic>) {
+        final fromJson = decoded['accountNumber']?.toString().trim() ?? '';
+        if (fromJson.isNotEmpty) {
+          accountNumber = fromJson;
+        }
+      }
+    } catch (_) {}
+
+    if (accountNumber.toLowerCase().startsWith('accountnumber:')) {
+      final parts = accountNumber.split(':');
+      if (parts.length > 1) {
+        accountNumber = parts.sublist(1).join(':').trim();
+      }
+    }
+
+    accountNumber = accountNumber.replaceAll(RegExp(r'\s+'), '');
+    if (accountNumber.isEmpty) {
+      return false;
+    }
+
+    cardNumberController.text = accountNumber;
+    _updateFormState();
+    update();
+    return true;
+  }
+
   Future<void> submitTransfer() async {
     isTransferring = true;
     update();

@@ -40,6 +40,7 @@ class MyApp extends StatelessWidget {
             initialBinding: InitialBinding(),
             theme: AppTheme.lightTheme,
             debugShowCheckedModeBanner: false,
+            enableLog: false,
             initialRoute: initialRoute,
             getPages: AppPages.routes,
           ),

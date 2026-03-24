@@ -6,6 +6,7 @@ import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_shadows.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
 import 'package:mobile_banking_app/modules/home/controllers/transfer_controller.dart';
+import 'package:mobile_banking_app/routes/app_routes.dart';
 import 'package:mobile_banking_app/widgets/button/custom_button_primary_active.dart';
 import 'package:mobile_banking_app/widgets/button/custom_button_primary_dissable.dart';
 import 'package:mobile_banking_app/widgets/card/custom_add_new_card.dart';
@@ -83,6 +84,8 @@ class TransferView extends StatelessWidget {
             ),
           ),
           SizedBox(height: 20.h),
+          _buildQrActionButtons(controller),
+          SizedBox(height: 16.h),
           // Padding(
           //   padding: const EdgeInsets.symmetric(horizontal: 24),
           //   child: Text(
@@ -127,6 +130,97 @@ class TransferView extends StatelessWidget {
           _buildFormCardTransfer(controller),
           SizedBox(height: 30.h),
         ],
+      ),
+    );
+  }
+
+  Widget _buildQrActionButtons(TransferController controller) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.dg),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildQrActionCard(
+              icon: Icons.qr_code_2_rounded,
+              title: 'QR',
+              subtitle: 'Share',
+              onTap: () {
+                if (!controller.canGenerateQr) {
+                  Get.snackbar(
+                    'Select account',
+                    'Please choose source account first.',
+                  );
+                  return;
+                }
+                Get.toNamed(AppRoutes.TRANSFER_GENERATE_QR);
+              },
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: _buildQrActionCard(
+              icon: Icons.qr_code_scanner_rounded,
+              title: 'Scan QR',
+              subtitle: 'Fill account',
+              onTap: () => Get.toNamed(AppRoutes.TRANSFER_SCAN_QR),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQrActionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: AppColors.primaryBackground,
+          borderRadius: BorderRadius.circular(14.r),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38.w,
+              height: 38.h,
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Icon(icon, color: AppColors.primary, size: 22.sp),
+            ),
+            SizedBox(width: 10.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTextStyles.caption1.copyWith(
+                      color: AppColors.black,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.body3.copyWith(
+                      color: AppColors.grey,
+                      fontSize: 11.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -267,6 +361,14 @@ class TransferView extends StatelessWidget {
             hint: 'To Account number',
             controller: controller.cardNumberController,
             keybaordType: TextInputType.number,
+            suffixWidget: IconButton(
+              onPressed: () => Get.toNamed(AppRoutes.TRANSFER_SCAN_QR),
+              icon: Icon(
+                Icons.qr_code_scanner_rounded,
+                color: AppColors.primary,
+                size: 22.sp,
+              ),
+            ),
           ),
           SizedBox(height: 24.h),
           CustomInputField(
