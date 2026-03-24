@@ -89,10 +89,11 @@ class LoginView extends StatelessWidget {
   Widget _buildButton(LoginController controller) {
     return Column(
       children: [
-        controller.isFormValid
+        if (controller.isLoading) CircularProgressIndicator()
+        else controller.isFormValid
             ? CustomButtonPrimaryActive(
                 label: 'Sign In',
-                onTap: () => Get.toNamed(AppRoutes.MAIN_LAYOUT),
+                onTap: () => controller.login(),
               )
             : CustomButtonPrimaryDissable(label: 'Sign In'),
         SizedBox(height: 20.h),

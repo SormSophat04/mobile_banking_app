@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_assets.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
-import 'package:mobile_banking_app/routes/app_routes.dart';
 import 'package:mobile_banking_app/widgets/button/custom_button_primary_active.dart';
 import 'package:mobile_banking_app/widgets/text_field/custom_text_field.dart';
 import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
+import 'package:mobile_banking_app/modules/home/controllers/transfer_controller.dart';
 
 class ConfirmTransferView extends StatelessWidget {
   const ConfirmTransferView({super.key});
@@ -29,6 +29,8 @@ class ConfirmTransferView extends StatelessWidget {
   }
 
   Widget _buildBody() {
+    final TransferController controller = Get.find<TransferController>();
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.symmetric(horizontal: 24.dg),
@@ -45,13 +47,24 @@ class ConfirmTransferView extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.h),
-          CustomInputField(label: 'From', keybaordType: TextInputType.number),
-          SizedBox(height: 18.h),
-          CustomInputField(label: 'To'),
+          CustomInputField(
+            label: 'From',
+            keybaordType: TextInputType.number,
+            text: controller.accountController.text,
+            isReadOnly: true,
+          ),
           SizedBox(height: 18.h),
           CustomInputField(
-            label: 'Card number',
+            label: 'To (Name)',
+            text: controller.nameController.text,
+            isReadOnly: true,
+          ),
+          SizedBox(height: 18.h),
+          CustomInputField(
+            label: 'Card/Account number',
             keybaordType: TextInputType.number,
+            text: controller.cardNumberController.text,
+            isReadOnly: true,
             suffixWidget: Padding(
               padding: EdgeInsets.all(12.dg),
               child: Image.asset(
@@ -66,11 +79,23 @@ class ConfirmTransferView extends StatelessWidget {
           CustomInputField(
             label: 'Transfer fee',
             keybaordType: TextInputType.number,
+            text: '0.0', // Fee mock
+            isReadOnly: true,
           ),
           SizedBox(height: 18.h),
-          CustomInputField(label: 'Content', keybaordType: TextInputType.text),
+          CustomInputField(
+            label: 'Content / Note',
+            keybaordType: TextInputType.text,
+            text: controller.contentController.text,
+            isReadOnly: true,
+          ),
           SizedBox(height: 18.h),
-          CustomInputField(label: 'Amount', keybaordType: TextInputType.number),
+          CustomInputField(
+            label: 'Amount',
+            keybaordType: TextInputType.number,
+            text: '\$${controller.amountController.text}',
+            isReadOnly: true,
+          ),
           SizedBox(height: 18.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -91,9 +116,13 @@ class ConfirmTransferView extends StatelessWidget {
             ],
           ),
           SizedBox(height: 30.h),
-          CustomButtonPrimaryActive(
-            label: 'Confirm',
-            onTap: () => Get.offAndToNamed(AppRoutes.TRANSFER_SUCCESS),
+          GetBuilder<TransferController>(
+            builder: (controller) => controller.isTransferring
+                ? const Center(child: CircularProgressIndicator())
+                : CustomButtonPrimaryActive(
+                    label: 'Confirm',
+                    onTap: () => controller.submitTransfer(),
+                  ),
           ),
           SizedBox(height: 30.h),
         ],

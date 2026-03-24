@@ -20,12 +20,16 @@ class _CustomCreditCardState extends State<CustomCreditCard> {
   Widget build(BuildContext context) {
     return GetBuilder<CreditCardController>(
       builder: (controller) {
+        if (controller.cardImages.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
         List<Widget> valuesWidget = [];
         for (int i = 0; i < controller.cardImages.length; i++) {
           valuesWidget.add(
             ClipRRect(
               borderRadius: BorderRadius.circular(22.0),
-              child: Image.asset(controller.cardImages[i]),
+              child: controller.cardImages[i],
             ),
           );
         }
@@ -55,8 +59,9 @@ class _CustomCreditCardState extends State<CustomCreditCard> {
               onInteractionChanged: widget.onInteractionChanged,
             );
           },
-          child: SizedBox(
-            height: 250.h,
+          child: Container(
+            height: 210.h,
+            margin: EdgeInsets.only(top: 10.dg),
             child: ListView(
               shrinkWrap: true,
               physics: controller.dragOverMap.value
@@ -64,7 +69,7 @@ class _CustomCreditCardState extends State<CustomCreditCard> {
                   : const ScrollPhysics(),
               children: [
                 SizedBox(
-                  height: 250.h,
+                  height: 210.h,
                   width: double.infinity,
                   child: CardSlider(
                     key: _pointerKey,
@@ -72,8 +77,8 @@ class _CustomCreditCardState extends State<CustomCreditCard> {
                     slideChanged: (index) {
                       controller.onPageChanged(index);
                     },
-                    bottomOffset: 0.002,
-                    cardHeight: 0.65,
+                    bottomOffset: 0.001,
+                    cardHeight: 0.55,
                     cardWidth: 0.88,
                     containerHeight: 250,
                   ),

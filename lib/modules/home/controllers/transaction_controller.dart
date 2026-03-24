@@ -1,58 +1,86 @@
+import 'dart:convert';
 import 'package:get/get.dart';
+import 'package:mobile_banking_app/core/network/api_client.dart';
+import 'package:mobile_banking_app/core/network/models/account_model.dart';
+import 'package:mobile_banking_app/core/network/models/transaction_model.dart';
 
 class TransactionController extends GetxController {
-  final RxBool isLoading = false.obs;
+  final ApiClient apiClient = Get.find<ApiClient>();
 
-  final List<Map<String, String>> transactions = [
-    {
-      'title': 'Wather Bill',
-      'subtitle': 'Successfully',
-      'amount': '-\$100',
-      'icon': 'assets/images/Icon.png',
-    },
-    {
-      'title': 'Income: Salary Oct',
-      // 'subtitle': 'Unsuccessfully',
-      'amount': '+\$3,000',
-      'icon': 'assets/images/Icon-1.png',
-    },
-    {
-      'title': 'Electric Bill',
-      'subtitle': 'Successfully',
-      'amount': '-\$200',
-      'icon': 'assets/images/Icon-2.png',
-    },
-    {
-      'title': 'Income : Jane transfers',
-      // 'subtitle': 'Unsuccessfully',
-      'amount': '+\$2,000',
-      'icon': 'assets/images/Icon-3.png',
-    },
-    {
-      'title': 'Internet Bill',
-      'subtitle': 'Successfully',
-      'amount': '-\$70',
-      'icon': 'assets/images/Icon-4.png',
-    },
-  ].obs;
+  AccountModel? account;
+  List<TransactionModel> transactions = [];
+  bool isLoading = false;
+  String errorMessage = '';
 
   @override
   void onInit() {
     super.onInit();
-    _loadTransactions();
+    // Receive the AccountModel passed via Get.toNamed arguments
+    if (Get.arguments != null && Get.arguments is AccountModel) {
+      account = Get.arguments as AccountModel;
+    }
+    fetchTransactions();
   }
 
-  Future<void> _loadTransactions() async {
-    isLoading.value = true;
+  Future<void> fetchTransactions() async {
+    if (account?.accountId == null) {
+      errorMessage = 'No account selected.';
+      update();
+      return;
+    }
+
+    isLoading = true;
+    errorMessage = '';
+    update();
+
     try {
-      // Simulate API call delay
-      await Future.delayed(const Duration(seconds: 1));
+      final response =
+          await apiClient.getTransactions(account!.accountId!.toString());
+
+      if (response.isOk && response.body != null) {
+        var data = response.body;
+
+        if (data is String) {
+          try {
+            data = jsonDecode(data);
+          } catch (_) {}
+        }
+
+        if (data is List) {
+          transactions =
+              data.map((e) => TransactionModel.fromJson(e)).toList();
+        } else if (data is Map<String, dynamic>) {
+          // Handle paginated response e.g. { "content": [...] }
+          if (data['content'] is List) {
+            transactions = (data['content'] as List)
+                .map((e) => TransactionModel.fromJson(e))
+                .toList();
+          } else {
+            transactions = [TransactionModel.fromJson(data)];
+          }
+        } else {
+          errorMessage = 'Unrecognized response format.';
+        }
+
+        // Sort: most recent date first
+        transactions.sort((a, b) {
+          final da = DateTime.tryParse(a.createAt ?? '') ?? DateTime(0);
+          final db = DateTime.tryParse(b.createAt ?? '') ?? DateTime(0);
+          return db.compareTo(da);
+        });
+      } else {
+        errorMessage =
+            'Failed to load transactions (${response.statusCode}).';
+      }
+    } catch (e) {
+      errorMessage = 'Error: $e';
     } finally {
-      isLoading.value = false;
+      isLoading = false;
+      update();
     }
   }
 
   void refreshTransactions() {
-    _loadTransactions();
+    fetchTransactions();
   }
 }

@@ -41,6 +41,8 @@ class AppAssets {
   static const String watherBill = '$image/Group 553.png';
   static const String mobileBill = '$image/Group 552.png';
   static const String internetBill = '$image/Group 551.png';
+  static const String masterCard = '$image/master_card.png';
+  static const String visaCard = '$image/visa_card.png';
 
   static const String notification = '$icons/34.png';
   static const String checkBox1 = '$icons/46.png';

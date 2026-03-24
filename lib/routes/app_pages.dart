@@ -13,6 +13,8 @@ import 'package:mobile_banking_app/modules/home/views/pay_bill/pay_search_code_v
 import 'package:mobile_banking_app/modules/home/views/pay_bill/pay_success_view.dart';
 import 'package:mobile_banking_app/modules/home/views/prepaid/prepaid_success_view.dart';
 import 'package:mobile_banking_app/modules/home/views/transfer/confirm_transfer_view.dart';
+import 'package:mobile_banking_app/modules/home/views/transfer/transfer_generate_qr_view.dart';
+import 'package:mobile_banking_app/modules/home/views/transfer/transfer_scan_qr_view.dart';
 import 'package:mobile_banking_app/modules/home/views/transfer/transfer_success_view.dart';
 import 'package:mobile_banking_app/modules/home/views/wallet/card_and_account_view.dart';
 import 'package:mobile_banking_app/modules/home/views/credit_card/credit_card_view.dart';
@@ -35,6 +37,7 @@ import 'package:mobile_banking_app/modules/security/view/blocked_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/app_information/app_information_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/password/password_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/setting_view.dart';
+import 'package:mobile_banking_app/modules/verify_profile/view/verify_profile_view.dart';
 import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class AppPages {
@@ -111,6 +114,16 @@ class AppPages {
     GetPage(
       name: AppRoutes.TRANSFER,
       page: () => const TransferView(),
+      middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.TRANSFER_GENERATE_QR,
+      page: () => const TransferGenerateQrView(),
+      middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.TRANSFER_SCAN_QR,
+      page: () => const TransferScanQrView(),
       middlewares: [_securityMiddleware],
     ),
     GetPage(
@@ -267,6 +280,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.PREPAID_SUCCESS,
       page: () => const PrepaidSuccessView(),
+      middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.VERIFY_PROFILE,
+      page: () => const VerifyProfileView(),
       middlewares: [_securityMiddleware],
     ),
   ];

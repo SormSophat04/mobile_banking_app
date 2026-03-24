@@ -7,6 +7,7 @@ class AppRoutes {
   static const String SEARCH = '/search';
   static const String MESSAGE = '/message';
   static const String SETTINGS = '/settings';
+  static const String VERIFY_PROFILE = '/verify-profile';
 
   // Auth
   static const String LOGIN = '/login';
@@ -24,6 +25,8 @@ class AppRoutes {
   // Home Screens ->
   static const String CARD_AND_ACCOUNT = '/card-and-account';
   static const String TRANSFER = '/transfer';
+  static const String TRANSFER_GENERATE_QR = '/transfer-generate-qr';
+  static const String TRANSFER_SCAN_QR = '/transfer-scan-qr';
   static const String WITHDRAW = '/withdraw';
   static const String PREPAID = '/prepaid';
   static const String PAY_BILL = '/pay-bill';

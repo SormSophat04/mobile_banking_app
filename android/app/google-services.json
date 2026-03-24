@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "202812506244",
+    "project_id": "banking-app-d3be3",
+    "storage_bucket": "banking-app-d3be3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202812506244:android:8a8c6c8c3b1a3cb7fb42d1",
+        "android_client_info": {
+          "package_name": "com.lead.mobile_banking_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8RjSOpcU1umA8ddsh0vCp21MPR44uFgQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202812506244:android:ab3ab0d35178b59afb42d1",
+        "android_client_info": {
+          "package_name": "com.lead.mobile_banking_app.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8RjSOpcU1umA8ddsh0vCp21MPR44uFgQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

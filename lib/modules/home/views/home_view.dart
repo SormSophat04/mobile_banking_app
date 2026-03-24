@@ -102,6 +102,7 @@ class HomeView extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top: 14.h),
       width: double.infinity,
+      height: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.only(
@@ -119,6 +120,7 @@ class HomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const CustomCreditCard(),
+                SizedBox(height: 16.h),
                 CustomGridView(),
                 SizedBox(height: 28.h),
               ],
