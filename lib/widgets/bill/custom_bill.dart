@@ -9,7 +9,7 @@ class BillReceiptCard extends StatelessWidget {
   final String code;
   final String fromDate;
   final String toDate;
-  final double electricFee;
+  final double fee;
   final double tax;
   final double total;
 
@@ -24,7 +24,7 @@ class BillReceiptCard extends StatelessWidget {
     required this.code,
     required this.fromDate,
     required this.toDate,
-    required this.electricFee,
+    required this.fee,
     required this.tax,
     required this.total,
     this.backgroundColor = const Color(
@@ -113,8 +113,8 @@ class BillReceiptCard extends StatelessWidget {
               const SizedBox(height: 32),
 
               _InfoRow(
-                label: 'Electric fee',
-                value: '\$${electricFee.toInt()}',
+                label: 'Fee',
+                value: '\$${fee.toInt()}',
                 labelColor: labelColor,
                 valueColor: primaryBlue,
                 valueSize: 22,

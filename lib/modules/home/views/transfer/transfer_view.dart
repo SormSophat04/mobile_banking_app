@@ -9,9 +9,6 @@ import 'package:mobile_banking_app/modules/home/controllers/transfer_controller.
 import 'package:mobile_banking_app/routes/app_routes.dart';
 import 'package:mobile_banking_app/widgets/button/custom_button_primary_active.dart';
 import 'package:mobile_banking_app/widgets/button/custom_button_primary_dissable.dart';
-import 'package:mobile_banking_app/widgets/card/custom_add_new_card.dart';
-import 'package:mobile_banking_app/widgets/card/custom_transfer_card.dart';
-import 'package:mobile_banking_app/widgets/card/custom_user_card.dart';
 import 'package:mobile_banking_app/widgets/text_field/custom_text_field.dart';
 import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
 
@@ -59,7 +56,7 @@ class TransferView extends StatelessWidget {
                 isReadOnly: true,
                 onTap: () {
                   if (controller.accounts.isNotEmpty) {
-                    _showAccountPicker(context, controller);
+                    _showAccountPicker(controller);
                   } else if (controller.isLoadingAccounts) {
                     Get.snackbar('Notice', 'Fetching accounts...');
                   } else {
@@ -86,47 +83,6 @@ class TransferView extends StatelessWidget {
           SizedBox(height: 20.h),
           _buildQrActionButtons(controller),
           SizedBox(height: 16.h),
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 24),
-          //   child: Text(
-          //     'Choose transaction',
-          //     style: AppTextStyles.caption1.copyWith(
-          //       color: AppColors.grey,
-          //       fontSize: 14.sp,
-          //       fontWeight: FontWeight.w600,
-          //     ),
-          //   ),
-          // ),
-          // SizedBox(height: 16.h),
-          // _buildScrollTransaction(controller),
-          // SizedBox(height: 16.h),
-          // Padding(
-          //   padding: const EdgeInsets.symmetric(horizontal: 24),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: [
-          //       Text(
-          //         'Choose beneficiary',
-          //         style: AppTextStyles.caption1.copyWith(
-          //           color: AppColors.grey,
-          //           fontSize: 14.sp,
-          //           fontWeight: FontWeight.w600,
-          //         ),
-          //       ),
-          //       Text(
-          //         'Find beneficiary',
-          //         style: AppTextStyles.caption1.copyWith(
-          //           color: AppColors.primary,
-          //           fontSize: 14.sp,
-          //           fontWeight: FontWeight.w600,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          // SizedBox(height: 4.h),
-          // _buildScrollBeneficiary(controller),
-          // SizedBox(height: 16.h),
           _buildFormCardTransfer(controller),
           SizedBox(height: 30.h),
         ],
@@ -144,8 +100,8 @@ class TransferView extends StatelessWidget {
               icon: Icons.qr_code_2_rounded,
               title: 'QR',
               subtitle: 'Share',
-              onTap: () {
-                if (!controller.canGenerateQr) {
+                onTap: () {
+                  if (controller.selectedAccount.value == null) {
                   Get.snackbar(
                     'Select account',
                     'Please choose source account first.',
@@ -225,57 +181,7 @@ class TransferView extends StatelessWidget {
     );
   }
 
-  Widget _buildScrollTransaction(TransferController controller) {
-    return SizedBox(
-      height: 130.h,
-      child: ListView.builder(
-        itemCount: controller.transactionTypes.length,
-        shrinkWrap: true,
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.dg),
-        itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.only(top: 15, bottom: 25),
-          child: GestureDetector(
-            onTap: () => controller.selectTransaction(index),
-            child: CustomTransferCard(
-              icon: controller.transactionTypes[index]['icon']!,
-              title: controller.transactionTypes[index]['title']!,
-              isSelected: controller.selectedTransactionIndex == index,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScrollBeneficiary(TransferController controller) {
-    return SizedBox(
-      height: 150.h,
-      child: ListView.builder(
-        itemCount: 10,
-        shrinkWrap: true,
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.dg),
-        itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.only(top: 15, bottom: 25),
-          child: GestureDetector(
-            onTap: () => controller.selectBeneficiary(index),
-            child: index == 0
-                ? CustomAddNewCard(
-                    isSelected: controller.selectedBeneficiaryIndex == index,
-                  )
-                : CustomUserCard(
-                    isSelected: controller.selectedBeneficiaryIndex == index,
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showAccountPicker(BuildContext context, TransferController controller) {
+  void _showAccountPicker(TransferController controller) {
     Get.bottomSheet(
       Container(
         decoration: BoxDecoration(
@@ -351,12 +257,6 @@ class TransferView extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // CustomInputField(
-          //   hint: 'Name',
-          //   controller: controller.nameController,
-          //   keybaordType: TextInputType.name,
-          // ),
-          // SizedBox(height: 24.h),
           CustomInputField(
             hint: 'To Account number',
             controller: controller.cardNumberController,

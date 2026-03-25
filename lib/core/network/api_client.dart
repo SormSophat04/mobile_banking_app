@@ -1,38 +1,26 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mobile_banking_app/core/utils/jwt_utils.dart';
 import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class ApiClient extends GetConnect {
-  final _storage = const FlutterSecureStorage();
-  String? _token;
-  String? _customerId;
-  String? _customerName;
+  static const _storage = FlutterSecureStorage();
+  String? _token, _customerId, _customerName, _customerPhone;
 
   @override
   void onInit() {
-    // Determine the correct base URL based on platform
-    // For Android Emulator, localhost is 10.0.2.2
-    String baseUrlStr = 'http://localhost:8080/api/';
-    if (!kIsWeb && Platform.isAndroid) {
-      baseUrlStr = 'http://10.0.2.2:8080/api/';
-    }
-    httpClient.baseUrl = baseUrlStr;
+    httpClient.baseUrl = !kIsWeb && Platform.isAndroid ? 'http://10.0.2.2:8080/api/' : 'http://localhost:8080/api/';
     httpClient.defaultContentType = 'application/json';
     httpClient.timeout = const Duration(seconds: 30);
-    
-    // Inject JWT Token into the headers
+
     httpClient.addRequestModifier<dynamic>((request) async {
       _token ??= await _storage.read(key: 'jwt_token');
-      if (_token != null) {
-        request.headers['Authorization'] = 'Bearer $_token';
-      }
+      if (_token != null) request.headers['Authorization'] = 'Bearer $_token';
       return request;
     });
 
-    // Handle 401 Unauthorized globally
     httpClient.addResponseModifier((request, response) async {
       if (response.statusCode == 401 && !request.url.path.contains('auth/login')) {
         await clearAuth();
@@ -40,197 +28,83 @@ class ApiClient extends GetConnect {
       }
       return response;
     });
-
     super.onInit();
-  }
-
-  Map<String, dynamic>? _decodeJwt(String token) {
-    try {
-      final parts = token.split('.');
-      if (parts.length != 3) return null;
-      final payload = parts[1];
-      final String normalized = base64Url.normalize(payload);
-      final String decoded = utf8.decode(base64Url.decode(normalized));
-      return json.decode(decoded);
-    } catch (e) {
-      return null;
-    }
   }
 
   Future<void> saveToken(String token) async {
     _token = token;
     await _storage.write(key: 'jwt_token', value: token);
+    final payload = JwtDecoder.decode(token);
+    if (payload == null) return;
 
-    // Automatically decode the token to cache the customerId and name if present
-    final payload = _decodeJwt(token);
-    if (payload != null) {
-      final customerObj = payload['customer'] is Map ? payload['customer'] : null;
-      final userObj = payload['user'] is Map ? payload['user'] : null;
+    final customer = payload['customer'] ?? payload['user'] ?? payload;
+    final id = customer['customerId'] ?? customer['userId'] ?? payload['sub'];
+    if (id != null) await saveCustomerId(id.toString());
 
-      final customerId = customerObj?['customerId'] ?? userObj?['userId'] ?? 
-                         payload['customerId'] ?? payload['userId'] ?? 
-                         payload['sub'];
-                         
-      if (customerId != null) {
-        await saveCustomerId(customerId.toString());
-      }
-      
-      final firstName = customerObj?['firstName'] ?? payload['firstName'];
-      final lastName = customerObj?['lastName'] ?? payload['lastName'];
-      
-      if (firstName != null && lastName != null) {
-        await saveCustomerName('$firstName $lastName');
-      } else if (payload['name'] != null) {
-        await saveCustomerName(payload['name']);
-      }
+    final name = customer['firstName'] != null ? "${customer['firstName']} ${customer['lastName']}" : payload['name'];
+    if (name != null) await saveCustomerName(name);
+
+    final phone = customer['phone'] ?? customer['phoneNumber'] ?? payload['phone'] ?? payload['phoneNumber'];
+    if (phone != null) await saveCustomerPhone(phone.toString());
+  }
+
+  Future<void> saveCustomerId(String id) async { _customerId = id; await _storage.write(key: 'customer_id', value: id); }
+  Future<String?> getCustomerId() async => _customerId ??= await _storage.read(key: 'customer_id');
+
+  Future<void> saveCustomerName(String name) async { _customerName = name; await _storage.write(key: 'customer_name', value: name); }
+  Future<String?> getCustomerName() async => _customerName ??= await _storage.read(key: 'customer_name');
+
+  Future<void> saveCustomerPhone(String phone) async { _customerPhone = phone; await _storage.write(key: 'customer_phone', value: phone); }
+  Future<String?> getCustomerPhone() async {
+    _customerPhone ??= await _storage.read(key: 'customer_phone');
+    if (_customerPhone == null || _customerPhone!.isEmpty) {
+      final token = await _storage.read(key: 'jwt_token');
+      if (token != null) await saveToken(token); // Triggers re-decoding
     }
-  }
-
-  Future<void> saveCustomerId(String id) async {
-    _customerId = id;
-    await _storage.write(key: 'customer_id', value: id);
-  }
-
-  Future<String?> getCustomerId() async {
-    _customerId ??= await _storage.read(key: 'customer_id');
-    return _customerId;
-  }
-
-  Future<void> saveCustomerName(String name) async {
-    _customerName = name;
-    await _storage.write(key: 'customer_name', value: name);
-  }
-
-  Future<String?> getCustomerName() async {
-    _customerName ??= await _storage.read(key: 'customer_name');
-    return _customerName;
+    return _customerPhone;
   }
 
   Future<void> clearAuth() async {
-    _token = null;
-    _customerId = null;
-    _customerName = null;
-    await _storage.delete(key: 'jwt_token');
-    await _storage.delete(key: 'customer_id');
-    await _storage.delete(key: 'customer_name');
+    _token = _customerId = _customerName = _customerPhone = null;
+    for (var k in ['jwt_token', 'customer_id', 'customer_name', 'customer_phone']) { await _storage.delete(key: k); }
   }
 
-  Future<Response> login(String phone, String password) async {
-    final response = await post('auth/login', {
-      'phoneNumber': phone,
-      'password': password,
-    });
-    return response;
+  // Auth Methods
+  Future<Response> login(String phone, String password) => post('auth/login', {'phoneNumber': phone, 'password': password});
+  Future<Response> register(String phone, String email, String password) => post('auth/register', {'phoneNumber': phone, 'email': email, 'password': password});
+
+  // Business Methods
+  Future<Response> verifyProfile(String f, String l, String n, String b) => post('customers', {'firstName': f, 'lastName': l, 'nationalId': n, 'birthDate': b});
+  Future<Response> getAccount(String id) => get('accounts/customer/$id');
+  Future<Response> getCardsByAccount(String id) => get('cards/account/$id');
+  Future<Response> createCard({required int accountId, required String cardType}) => post('cards', {'accountId': accountId, 'cardType': cardType, 'account': {'accountId': accountId}});
+  
+  Future<Response> getTransactions(String id) async {
+    final res = await get('transactions/accounts/$id');
+    return res.statusCode == 404 ? await get('transactions/account/$id') : res;
+  }
+  
+  Future<Response> getTransaction(String id) => get('transactions/$id');
+
+  Future<void> saveFcmToken(String token) async {
+    await _storage.write(key: 'fcm_token', value: token);
+    final id = await getCustomerId();
+    if (id != null) await put('customers/$id/fcm-token', {'fcmToken': token});
   }
 
-  Future<Response> register(String phone, String email, String password) async {
-    final response = await post('auth/register', {
-      'phoneNumber': phone,
-      'email': email,
-      'password': password,
-    });
-    return response;
+  Future<String?> getFcmToken() => _storage.read(key: 'fcm_token');
+
+  Future<Response> sendPushNotification({required String toAccountNumber, required String title, required String body, Map<String, dynamic>? data}) {
+    final payload = {'toAccountNumber': toAccountNumber.trim(), 'title': title.trim(), 'body': body.trim(), if (data != null) 'data': data.map((k, v) => MapEntry(k.trim(), v?.toString().trim() ?? ""))};
+    return post('notifications/push', payload);
   }
 
-  Future<Response> verifyProfile(String firstName, String lastName, String nationalId, String birthDate) async {
-    final response = await post('customers', {
-      'firstName': firstName,
-      'lastName': lastName,
-      'nationalId': nationalId,
-      'birthDate': birthDate,
-    });
-    return response;
-  }
-
-  Future<Response> getAccount(String customerId) async {
-    final response = await get('accounts/customer/$customerId');
-    return response;
-  }
-
-  Future<Response> getCardsByAccount(String accountId) async {
-    final response = await get('cards/account/$accountId');
-    return response;
-  }
-
-  Future<Response> createCard({
-    required int accountId,
-    required String cardType,
-  }) async {
-    final response = await post('cards', {
-      'accountId': accountId,
-      'cardType': cardType,
-      'account': {'accountId': accountId},
-    });
-    return response;
-  }
-
-  Future<Response> getTransactions(String accountId) async {
-    final response = await get('transactions/account/$accountId');
-    return response;
-  }
-
-  Future<Response> getTransaction(String transactionId) async {
-    final response = await get('transactions/$transactionId');
-    return response;
-  }
-
-  /// Registers this device's FCM token with the backend server,
-  /// linking it to the customer so the server can send push notifications.
-  Future<void> saveFcmToken(String fcmToken) async {
-    try {
-      await _storage.write(key: 'fcm_token', value: fcmToken);
-      final customerId = await getCustomerId();
-      if (customerId == null) return;
-
-      final response = await put('customers/$customerId/fcm-token', {
-        'fcmToken': fcmToken,
-      });
-    } catch (_) {}
-  }
-
-  /// Retrieves the locally stored FCM token.
-  Future<String?> getFcmToken() async {
-    return await _storage.read(key: 'fcm_token');
-  }
-
-
-  /// Calls the backend to push a notification to a specific FCM device token.
-  /// The backend will use Firebase Admin SDK to send the notification.
-  Future<Response> sendPushNotification({
-    required String toAccountNumber,
-    required String title,
-    required String body,
-    Map<String, dynamic>? data,
-  }) async {
-    final payload = {
-      'toAccountNumber': toAccountNumber, // Backend maps this to the stored FCM token
-      'title': title,
-      'body': body,
-      'data': data ?? {},
-    };
-    final response = await post('notifications/push', payload);
-    return response;
-  }
-
-  /// Attempts to refresh the JWT token via backend's auth/refresh endpoint.
   Future<bool> refreshToken() async {
-    try {
-      final response = await post('auth/refresh', {});
-      if (response.isOk && response.body != null) {
-        final data = response.body;
-        final token = data['token'] ?? data['access_token'] ?? data['accessToken'] ?? data['jwt'];
-        if (token != null) {
-          await saveToken(token.toString());
-          return true;
-        }
-      } else {
-        if (response.statusCode == 401) {
-          await clearAuth();
-          // We don't call Get.offAllNamed here because it might fail during initial app launch
-          // if GetMaterialApp hasn't been mounted yet. The 401 interceptor or AuthService will handle routing.
-        }
-      }
-    } catch (_) {}
+    final res = await post('auth/refresh', {});
+    if (res.isOk && res.body != null) {
+      final token = res.body['token'] ?? res.body['access_token'] ?? res.body['accessToken'] ?? res.body['jwt'];
+      if (token != null) { await saveToken(token.toString()); return true; }
+    } else if (res.statusCode == 401) { await clearAuth(); }
     return false;
   }
 }

@@ -7,251 +7,109 @@ import 'package:mobile_banking_app/core/network/models/transaction_model.dart';
 import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class TransferController extends GetxController {
-  List<AccountModel> accounts = [];
-  AccountModel? selectedAccountModel;
-  bool isLoadingAccounts = false;
-  bool isTransferring = false;
-  int? selectedTransactionIndex;
-  int? selectedBeneficiaryIndex;
-  bool saveToBeneficiary = false;
-  bool isFormValid = false;
+  final ApiClient _api = Get.put(ApiClient());
+  final accounts = <AccountModel>[].obs;
+  final selectedAccount = Rxn<AccountModel>();
+  bool isLoadingAccounts = false, isTransferring = false, saveToBeneficiary = false, isFormValid = false;
 
-  final TextEditingController accountController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController cardNumberController = TextEditingController();
-  final TextEditingController amountController = TextEditingController();
-  final TextEditingController contentController = TextEditingController();
+  final accountController = TextEditingController(), cardNumberController = TextEditingController(), amountController = TextEditingController(), contentController = TextEditingController();
 
-  final List<Map<String, String>> transactionTypes = [
-    {'title': 'Transfer via card number', 'icon': 'assets/icons/34.png'},
-    {'title': 'Transfer to the same bank', 'icon': 'assets/icons/09.png'},
-    {'title': 'Transfer to another bank', 'icon': 'assets/icons/33.png'},
-  ];
+  List<TextEditingController> get _controllers => [accountController, cardNumberController, amountController, contentController];
 
   @override
   void onInit() {
     super.onInit();
-    accountController.addListener(_updateFormState);
-    nameController.addListener(_updateFormState);
-    cardNumberController.addListener(_updateFormState);
-    amountController.addListener(_updateFormState);
-    contentController.addListener(_updateFormState);
+    for (var c in _controllers) { c.addListener(_updateFormState); }
     fetchAccounts();
-  }
-
-  Future<void> fetchAccounts() async {
-    isLoadingAccounts = true;
-    update();
-    try {
-      final ApiClient apiClient = Get.put(ApiClient());
-      final customerId = await apiClient.getCustomerId();
-      if (customerId != null) {
-        final response = await apiClient.getAccount(customerId);
-        if (response.isOk && response.body != null) {
-          var data = response.body;
-          if (data is String) {
-            try {
-              data = jsonDecode(data);
-            } catch (_) {}
-          }
-          if (data is List) {
-            accounts = data.map((e) => AccountModel.fromJson(e)).toList();
-          } else if (data is Map<String, dynamic>) {
-            accounts = [AccountModel.fromJson(data)];
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('Error fetching accounts for transfer: $e');
-    } finally {
-      isLoadingAccounts = false;
-      update();
-    }
-  }
-
-  void selectAccount(AccountModel account) {
-    if (account.accountNumber != null) {
-      selectedAccountModel = account;
-      accountController.text =
-          '${account.accountType ?? "Account"} - ${account.currency ?? "\$"}${account.balance?.toStringAsFixed(2) ?? "0.00"}';
-      update();
-    }
-  }
-
-  String get selectedAccountNumberForQr =>
-      selectedAccountModel?.accountNumber?.trim() ?? '';
-
-  bool get canGenerateQr => selectedAccountNumberForQr.isNotEmpty;
-
-  String buildScanPayQrPayload() => selectedAccountNumberForQr;
-
-  bool applyScannedQrPayload(String payload) {
-    final normalizedPayload = payload.trim();
-    if (normalizedPayload.isEmpty) {
-      return false;
-    }
-
-    String accountNumber = normalizedPayload;
-
-    // Supports plain account number and JSON payloads:
-    // {"accountNumber":"00112233"}
-    try {
-      final decoded = jsonDecode(normalizedPayload);
-      if (decoded is Map<String, dynamic>) {
-        final fromJson = decoded['accountNumber']?.toString().trim() ?? '';
-        if (fromJson.isNotEmpty) {
-          accountNumber = fromJson;
-        }
-      }
-    } catch (_) {}
-
-    if (accountNumber.toLowerCase().startsWith('accountnumber:')) {
-      final parts = accountNumber.split(':');
-      if (parts.length > 1) {
-        accountNumber = parts.sublist(1).join(':').trim();
-      }
-    }
-
-    accountNumber = accountNumber.replaceAll(RegExp(r'\s+'), '');
-    if (accountNumber.isEmpty) {
-      return false;
-    }
-
-    cardNumberController.text = accountNumber;
-    _updateFormState();
-    update();
-    return true;
-  }
-
-  Future<void> submitTransfer() async {
-    isTransferring = true;
-    update();
-    try {
-      final ApiClient apiClient = Get.find<ApiClient>();
-
-      final fromAccountNumber = selectedAccountModel?.accountNumber?.trim();
-      if (fromAccountNumber == null || fromAccountNumber.isEmpty) {
-        Get.snackbar('Transfer Failed', 'Please choose a source account first.');
-        return;
-      }
-
-      final amount = double.tryParse(amountController.text.trim()) ?? 0.0;
-      final toAccountNumber = cardNumberController.text
-          .replaceAll(RegExp(r'\s+'), '')
-          .trim();
-      if (toAccountNumber.isEmpty) {
-        Get.snackbar('Transfer Failed', 'Please enter the receiver account number.');
-        return;
-      }
-
-      final response = await apiClient.post('transactions/transfer', {
-        "fromAccountNumber": fromAccountNumber,
-        "toAccountNumber": toAccountNumber,
-        "amount": amount,
-        "description": contentController.text.trim(),
-      });
-
-      if (response.isOk) {
-        Get.snackbar('Success', 'Transfer completed successfully');
-
-        // Extract transaction from the response
-        final responseData = response.body;
-        TransactionModel? transaction;
-        String transactionId = '';
-        if (responseData is String) {
-          try {
-            final decoded = jsonDecode(responseData);
-            transaction = TransactionModel.fromJson(decoded);
-            transactionId = transaction.transactionId?.toString() ?? decoded['id']?.toString() ?? '';
-          } catch (_) {}
-        } else if (responseData is Map<String, dynamic>) {
-          transaction = TransactionModel.fromJson(responseData);
-          transactionId = transaction.transactionId?.toString() ?? responseData['id']?.toString() ?? '';
-        }
-
-        // Ask backend to notify the receiver.
-        // Backend looks up stored FCM token for this account number.
-        try {
-          final pushResponse = await apiClient.sendPushNotification(
-            toAccountNumber: toAccountNumber,
-            title:
-                'Money Received From ${selectedAccountModel?.customer?.firstName} ${selectedAccountModel?.customer?.lastName}',
-            body:
-                'You received ${selectedAccountModel?.currency ?? "\$"}$amount from ${selectedAccountModel?.accountNumber ?? "your account"}.',
-            data: {
-              'type': 'transfer',
-              'transactionId': transactionId,
-              'toAccountNumber': toAccountNumber,
-            },
-          );
-          if (!pushResponse.isOk) {
-            debugPrint(
-              'Transfer succeeded but push dispatch failed: ${pushResponse.statusCode} ${pushResponse.bodyString}',
-            );
-            Get.snackbar(
-              'Transfer Completed',
-              'Money sent, but push notification could not be delivered.',
-            );
-          }
-        } catch (e) {
-          debugPrint('Transfer succeeded but push dispatch threw error: $e');
-          Get.snackbar(
-            'Transfer Completed',
-            'Money sent, but push notification could not be delivered.',
-          );
-        }
-
-        Get.offAllNamed(AppRoutes.TRANSFER_SUCCESS, arguments: transaction);
-      } else {
-        Get.snackbar('Transfer Failed', response.bodyString ?? 'Unknown error');
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Transfer resulted in an error.');
-    } finally {
-      isTransferring = false;
-      update();
-    }
   }
 
   @override
   void onClose() {
-    accountController.dispose();
-    nameController.dispose();
-    cardNumberController.dispose();
-    amountController.dispose();
-    contentController.dispose();
+    for (var c in _controllers) { c.dispose(); }
     super.onClose();
   }
 
-  void selectTransaction(int index) {
-    if (selectedTransactionIndex != index) {
-      selectedTransactionIndex = index;
-      update();
-    }
+  Future<void> fetchAccounts() async {
+    isLoadingAccounts = true; update();
+    try {
+      final id = await _api.getCustomerId();
+      if (id == null) return;
+      final res = await _api.getAccount(id);
+      if (res.isOk) accounts.assignAll(_parseAccounts(res.body));
+    } finally { isLoadingAccounts = false; update(); }
   }
 
-  void selectBeneficiary(int index) {
-    if (selectedBeneficiaryIndex != index) {
-      selectedBeneficiaryIndex = index;
-      update();
-    }
+  void selectAccount(AccountModel acc) {
+    selectedAccount.value = acc;
+    accountController.text = '${acc.accountType ?? "Account"} - ${acc.currency ?? "\$"}${acc.balance?.toStringAsFixed(2) ?? "0.00"}';
   }
 
-  void toggleSaveToBeneficiary() {
-    saveToBeneficiary = !saveToBeneficiary;
-    update();
+  bool applyScannedQr(String payload) {
+    final Map<String, dynamic> data = (payload.trim().startsWith('{')) ? jsonDecode(payload) : {'accountNumber': payload.trim()};
+    final acc = data['accountNumber']?.toString().replaceAll(RegExp(r'\s+'), '');
+    if (acc != null && acc.isNotEmpty) { cardNumberController.text = acc; return true; }
+    return false;
   }
 
+  Future<void> submitTransfer() async {
+    if (!_validate()) return;
+    isTransferring = true; update();
+    try {
+      final to = cardNumberController.text.replaceAll(RegExp(r'\s+'), '').trim();
+      final amt = double.parse(amountController.text.trim());
+      final res = await _api.post('transactions/transfer', {"fromAccountNumber": selectedAccount.value!.accountNumber, "toAccountNumber": to, "amount": amt, "description": contentController.text.trim()});
+
+      if (res.isOk) {
+        final tx = _parseTx(res.body);
+        Get.offAllNamed(AppRoutes.TRANSFER_SUCCESS, arguments: tx);
+        _notify(tx, to, amt).catchError((e) => debugPrint('Push failed: $e'));
+      } else {
+        Get.snackbar('Error', res.bodyString ?? 'Transfer failed');
+      }
+    } finally { isTransferring = false; update(); }
+  }
+
+  bool _validate() {
+    if (selectedAccount.value == null) { Get.snackbar('Error', 'Choose source account'); return false; }
+    if (cardNumberController.text.isEmpty) { Get.snackbar('Error', 'Enter receiver account'); return false; }
+    if ((double.tryParse(amountController.text) ?? 0) <= 0) { Get.snackbar('Error', 'Invalid amount'); return false; }
+    return true;
+  }
+
+  Future<void> _notify(TransactionModel? tx, String to, double amt) async {
+    final from = selectedAccount.value!.accountNumber!;
+    final name = (await _api.getCustomerName()) ?? from;
+    final curr = selectedAccount.value?.currency ?? '\$';
+
+    await _api.sendPushNotification(
+      toAccountNumber: to,
+      title: 'Money Received From $name',
+      body: 'You received $curr${amt.toStringAsFixed(2)} from $from.',
+      data: {
+        'type': 'transfer', 'toAccountNumber': to, 'amount': amt.toString(), 'currency': curr,
+        'fromAccountNumber': from, 'senderDisplayName': name, 'status': 'SUCCESS',
+        if (tx?.transactionId != null) 'transactionId': tx!.transactionId.toString(),
+      },
+    );
+  }
+
+  List<AccountModel> _parseAccounts(dynamic body) {
+    final data = body is String ? jsonDecode(body) : body;
+    if (data is List) return data.map((e) => AccountModel.fromJson(e)).toList();
+    if (data is Map<String, dynamic>) return [AccountModel.fromJson(data)];
+    return [];
+  }
+
+  TransactionModel? _parseTx(dynamic body) {
+    final data = (body is String ? jsonDecode(body) : body) as Map<String, dynamic>?;
+    if (data == null) return null;
+    final tx = data['transaction'] ?? data['data'] ?? data;
+    return (tx is Map<String, dynamic>) ? TransactionModel.fromJson(tx) : null;
+  }
+
+  void toggleSaveToBeneficiary() { saveToBeneficiary = !saveToBeneficiary; update(); }
   void _updateFormState() {
-    final bool next =
-        accountController.text.trim().isNotEmpty &&
-        cardNumberController.text.trim().isNotEmpty &&
-        amountController.text.trim().isNotEmpty &&
-        contentController.text.trim().isNotEmpty;
-
-    if (next != isFormValid) {
-      isFormValid = next;
-      update();
-    }
+    final valid = _controllers.every((c) => c.text.trim().isNotEmpty);
+    if (valid != isFormValid) { isFormValid = valid; update(); }
   }
 }

@@ -55,12 +55,6 @@ class ConfirmTransferView extends StatelessWidget {
           ),
           SizedBox(height: 18.h),
           CustomInputField(
-            label: 'To (Name)',
-            text: controller.nameController.text,
-            isReadOnly: true,
-          ),
-          SizedBox(height: 18.h),
-          CustomInputField(
             label: 'Card/Account number',
             keybaordType: TextInputType.number,
             text: controller.cardNumberController.text,

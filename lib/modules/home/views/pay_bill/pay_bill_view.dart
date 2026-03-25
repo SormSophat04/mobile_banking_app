@@ -37,7 +37,10 @@ class PayBillView extends StatelessWidget {
           controller.bills[index]['icon'],
           ontap: () => Get.toNamed(
             controller.bills[index]['route'],
-            arguments: controller.bills[index]['title'],
+            arguments: {
+              'title': controller.bills[index]['title'],
+              'status': controller.bills[index]['status'],
+            },
           ),
         ),
       ),
