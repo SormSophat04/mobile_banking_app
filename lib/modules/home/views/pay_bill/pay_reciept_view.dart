@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:mobile_banking_app/core/constants/app_assets.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
+import 'package:mobile_banking_app/modules/home/controllers/pay_bill_controller.dart';
 import 'package:mobile_banking_app/routes/app_routes.dart';
 import 'package:mobile_banking_app/widgets/bill/custom_bill.dart';
 import 'package:mobile_banking_app/widgets/button/custom_button_primary_active.dart';
@@ -25,41 +25,50 @@ class PayRecieptView extends StatelessWidget {
   }
 
   Widget _buildBody() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.symmetric(horizontal: 24.dg),
-      child: Column(
-        children: [
-          Image.asset(AppAssets.imageIll5),
-          SizedBox(height: 20),
-          Text(
-            '02/10/2025-0/12',
-            style: AppTextStyles.caption1.copyWith(
-              color: AppColors.darkGrey,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+    return GetBuilder<PayBillController>(
+      builder: (controller) {
+        final bill = controller.selectedBill.value;
+        if (bill == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 24.dg),
+          child: Column(
+            children: [
+              SizedBox(height: 20.h),
+              Text(
+                'Due Date: ${bill.dueDate ?? "N/A"}',
+                style: AppTextStyles.caption1.copyWith(
+                  color: AppColors.darkGrey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp,
+                ),
+              ),
+              SizedBox(height: 20.h),
+              BillReceiptCard(
+                name: bill.customerName ?? 'N/A',
+                address: bill.address ?? 'N/A',
+                phoneNumber: bill.phoneNumber ?? 'N/A',
+                code: bill.billCode ?? 'N/A',
+                fromDate: bill.periodFrom ?? 'N/A',
+                toDate: bill.periodTo ?? 'N/A',
+                fee: bill.feeAmount ?? 0.0,
+                tax: bill.taxAmount ?? 0.0,
+                total: bill.totalAmount ?? 0.0,
+                backgroundColor: AppColors.white,
+              ),
+              SizedBox(height: 20.h),
+              CustomButtonPrimaryActive(
+                label: 'Pay the bill',
+                onTap: () => Get.toNamed(AppRoutes.PAY_SUCCESS),
+              ),
+              SizedBox(height: 60.h),
+            ],
           ),
-          SizedBox(height: 20),
-          BillReceiptCard(
-            name: 'Name',
-            address: 'pp',
-            phoneNumber: '09283423',
-            code: '222',
-            fromDate: '11-10-2025',
-            toDate: '11-11-2025',
-            electricFee: 12,
-            tax: 1,
-            total: 13,
-          ),
-          SizedBox(height: 20),
-          CustomButtonPrimaryActive(
-            label: 'Pay the bill',
-            onTap: () => Get.toNamed(AppRoutes.PAY_SUCCESS),
-          ),
-          SizedBox(height: 60),
-        ],
-      ),
+        );
+      },
     );
   }
 }

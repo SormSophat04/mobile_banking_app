@@ -23,6 +23,9 @@ class FirebaseMessagingService {
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  static const Duration _transferDialogDebounce = Duration(seconds: 3);
+  String? _lastTransferSignature;
+  DateTime? _lastTransferHandledAt;
 
   static String? fcmToken; // Store token statically so it's accessible globally
   static const String _fcmTokenStorageKey = 'fcm_token';
@@ -91,14 +94,17 @@ class FirebaseMessagingService {
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         log("Received foreground message: ${message.notification?.title}");
 
-        // Show receipt dialog immediately if it's a transfer and app is open
-        if (message.data['type'] == 'transfer') {
-          _handleNotificationClick(jsonEncode(message.data));
-        }
-
         final notification = message.notification;
         final title = notification?.title ?? message.data['title']?.toString();
         final body = notification?.body ?? message.data['body']?.toString();
+        final payloadMap = _buildPayloadFromRemoteMessage(
+          message,
+          fallbackTitle: title,
+          fallbackBody: body,
+        );
+
+        // Show receipt dialog immediately if this is a transfer and app is open.
+        _handleNotificationClick(jsonEncode(payloadMap));
 
         if (title != null || body != null) {
           _localNotificationsPlugin.show(
@@ -115,7 +121,7 @@ class FirebaseMessagingService {
                 icon: '@mipmap/ic_launcher',
               ),
             ),
-            payload: jsonEncode(message.data),
+            payload: jsonEncode(payloadMap),
           );
         }
       });
@@ -124,13 +130,23 @@ class FirebaseMessagingService {
         log(
           "Notification tapped from background: ${message.notification?.title}",
         );
-        _handleNotificationClick(jsonEncode(message.data));
+        final payloadMap = _buildPayloadFromRemoteMessage(
+          message,
+          fallbackTitle: message.notification?.title,
+          fallbackBody: message.notification?.body,
+        );
+        _handleNotificationClick(jsonEncode(payloadMap));
       });
 
       final initialMessage = await FirebaseMessaging.instance
           .getInitialMessage();
       if (initialMessage != null) {
-        _handleNotificationClick(jsonEncode(initialMessage.data));
+        final payloadMap = _buildPayloadFromRemoteMessage(
+          initialMessage,
+          fallbackTitle: initialMessage.notification?.title,
+          fallbackBody: initialMessage.notification?.body,
+        );
+        _handleNotificationClick(jsonEncode(payloadMap));
       }
 
       fcmToken ??= await _storage.read(key: _fcmTokenStorageKey);
@@ -153,36 +169,312 @@ class FirebaseMessagingService {
     if (payload == null) return;
     try {
       final data = jsonDecode(payload);
-      if (data['type'] == 'transfer' && data['transactionId'] != null) {
-        final transactionId = data['transactionId'].toString();
-        await Future.delayed(const Duration(milliseconds: 500));
+      if (data is! Map) return;
 
-        final apiClient = Get.put(ApiClient());
-        final response = await apiClient.getTransaction(transactionId);
+      final payloadMap = data.map(
+        (key, value) => MapEntry(key.toString(), value),
+      );
+      if (!_isTransferPayload(payloadMap)) return;
+      if (_isDuplicateTransfer(payloadMap)) return;
 
-        if (response.isOk && response.body != null) {
-          final txData = response.body;
-          TransactionModel? tx;
-          if (txData is String) {
-            try {
-              tx = TransactionModel.fromJson(jsonDecode(txData));
-            } catch (_) {}
-          } else if (txData is Map<String, dynamic>) {
-            tx = TransactionModel.fromJson(txData);
-          }
-          if (tx != null) {
-            _showReceiptDialog(tx);
-          }
-        }
+      final transactionId =
+          payloadMap['transactionId']?.toString().trim() ?? '';
+
+      final payloadTx = _buildTransactionFromPayload(payloadMap);
+      TransactionModel? tx;
+      if (transactionId.isNotEmpty) {
+        tx = await _fetchTransactionById(transactionId);
+      }
+      tx = _mergeTransactions(primary: tx, fallback: payloadTx);
+
+      if (tx != null) {
+        _showReceiptDialog(tx);
       }
     } catch (e) {
       log('Error handling notification click: $e');
     }
   }
 
+  bool _isTransferPayload(Map<String, dynamic> payload) {
+    final type = payload['type']?.toString().trim().toLowerCase();
+    if (type == 'transfer') return true;
+
+    final title = payload['title']?.toString().toLowerCase() ?? '';
+    final body = payload['body']?.toString().toLowerCase() ?? '';
+    return title.contains('money received') ||
+        body.contains('you received') ||
+        title.contains('payment received');
+  }
+
+  bool _isDuplicateTransfer(Map<String, dynamic> payload) {
+    final signature = [
+      payload['transactionId']?.toString().trim() ?? '',
+      payload['title']?.toString().trim() ?? '',
+      payload['body']?.toString().trim() ?? '',
+    ].join('|');
+
+    final now = DateTime.now();
+    final handledAt = _lastTransferHandledAt;
+    if (_lastTransferSignature == signature &&
+        handledAt != null &&
+        now.difference(handledAt) < _transferDialogDebounce) {
+      return true;
+    }
+
+    _lastTransferSignature = signature;
+    _lastTransferHandledAt = now;
+    return false;
+  }
+
+  Future<TransactionModel?> _fetchTransactionById(String transactionId) async {
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+      final apiClient = Get.put(ApiClient());
+      final response = await apiClient.getTransaction(transactionId);
+      if (!response.isOk || response.body == null) return null;
+
+      final txMap = _extractTransactionPayload(response.body);
+      if (txMap == null) return null;
+      return TransactionModel.fromJson(txMap);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Map<String, dynamic>? _extractTransactionPayload(dynamic rawBody) {
+    final decoded = _decodeIfJsonString(rawBody);
+    if (decoded is! Map) return null;
+
+    final map = decoded.map((key, value) => MapEntry(key.toString(), value));
+    final wrapped =
+        map['data'] ?? map['transaction'] ?? map['result'] ?? map['payload'];
+    if (wrapped is Map) {
+      return wrapped.map((key, value) => MapEntry(key.toString(), value));
+    }
+    if (wrapped is List && wrapped.isNotEmpty) {
+      final first = wrapped.first;
+      if (first is Map) {
+        return first.map((key, value) => MapEntry(key.toString(), value));
+      }
+    }
+    return map;
+  }
+
+  dynamic _decodeIfJsonString(dynamic rawBody) {
+    if (rawBody is! String) return rawBody;
+    try {
+      return jsonDecode(rawBody);
+    } catch (_) {
+      return rawBody;
+    }
+  }
+
+  TransactionModel? _buildTransactionFromPayload(Map<String, dynamic> payload) {
+    final amount = _asDouble(payload['amount']) ?? 0.0;
+    final title = payload['title']?.toString().trim() ?? '';
+
+    String? senderName = _firstNonBlankText([
+      payload['senderName'],
+      payload['fromName'],
+      payload['fromAccountName'],
+      payload['fromCustomerName'],
+      payload['senderFullName'],
+      payload['senderDisplayName'],
+      payload['fromAccountNumber'],
+      payload['senderAccountNumber'],
+    ]);
+    if (senderName == null && title.toLowerCase().contains('from')) {
+      final fromIndex = title.toLowerCase().lastIndexOf('from');
+      if (fromIndex >= 0 && fromIndex + 4 < title.length) {
+        senderName = _firstNonBlankText([
+          title.substring(fromIndex + 4).trim(),
+        ]);
+      }
+    }
+
+    final status = payload['status']?.toString().trim();
+    final description = payload['description']?.toString().trim();
+    final reference =
+        payload['referenceNumber']?.toString().trim() ??
+        payload['referenceNo']?.toString().trim();
+    final createAt =
+        payload['createAt']?.toString().trim() ??
+        payload['createdAt']?.toString().trim() ??
+        DateTime.now().toIso8601String();
+    final currency =
+        payload['senderCurrency']?.toString().trim() ??
+        payload['currency']?.toString().trim() ??
+        '\$';
+    final senderPhone = _firstNonBlankText([
+      payload['senderPhone'],
+      payload['fromPhone'],
+      payload['fromPhoneNumber'],
+      payload['senderPhoneNumber'],
+      payload['phoneNumber'],
+      payload['phone'],
+    ]);
+
+    return TransactionModel(
+      transactionId: int.tryParse(
+        payload['transactionId']?.toString().trim() ??
+            payload['id']?.toString().trim() ??
+            '',
+      ),
+      amount: amount,
+      description: (description != null && description.isNotEmpty)
+          ? description
+          : payload['body']?.toString().trim(),
+      status: (status != null && status.isNotEmpty) ? status : 'SUCCESS',
+      createAt: createAt,
+      referenceNumber: (reference != null && reference.isNotEmpty)
+          ? reference
+          : null,
+      senderName: (senderName != null && senderName.isNotEmpty)
+          ? senderName
+          : null,
+      senderPhone: senderPhone,
+      senderCurrency: currency,
+      currency: currency,
+    );
+  }
+
+  TransactionModel? _mergeTransactions({
+    required TransactionModel? primary,
+    required TransactionModel? fallback,
+  }) {
+    if (primary == null) return fallback;
+    if (fallback == null) return primary;
+
+    primary.transactionId ??= fallback.transactionId;
+    primary.amount = _mergeAmount(primary.amount, fallback.amount);
+    primary.description = _firstNonBlankText([
+      primary.description,
+      fallback.description,
+    ]);
+    primary.status = _firstNonBlankText([primary.status, fallback.status]);
+    primary.createAt = _firstNonBlankText([
+      primary.createAt,
+      fallback.createAt,
+    ]);
+    primary.referenceNumber = _firstNonBlankText([
+      primary.referenceNumber,
+      fallback.referenceNumber,
+    ]);
+
+    primary.senderName = _firstNonBlankText([
+      primary.senderName,
+      fallback.senderName,
+      primary.receiverName,
+      fallback.receiverName,
+    ]);
+    primary.senderPhone = _firstNonBlankText([
+      primary.senderPhone,
+      fallback.senderPhone,
+      primary.receiverPhone,
+      fallback.receiverPhone,
+    ]);
+    primary.senderAccountNumber = _firstNonBlankText([
+      primary.senderAccountNumber,
+      fallback.senderAccountNumber,
+      primary.receiverAccountNumber,
+      fallback.receiverAccountNumber,
+    ]);
+
+    primary.currency = _firstNonBlankText([
+      primary.currency,
+      primary.senderCurrency,
+      fallback.currency,
+      fallback.senderCurrency,
+    ]);
+    primary.senderCurrency = _firstNonBlankText([
+      primary.senderCurrency,
+      primary.currency,
+      fallback.senderCurrency,
+      fallback.currency,
+    ]);
+    primary.receiverCurrency = _firstNonBlankText([
+      primary.receiverCurrency,
+      fallback.receiverCurrency,
+    ]);
+
+    return primary;
+  }
+
+  double? _mergeAmount(double? primary, double? fallback) {
+    if (primary != null && primary > 0) return primary;
+    if (fallback != null && fallback > 0) return fallback;
+    return primary ?? fallback;
+  }
+
+  double? _asDouble(dynamic value) {
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '');
+  }
+
+  String? _firstNonBlankText(List<dynamic> values) {
+    for (final value in values) {
+      final normalized = value?.toString().trim();
+      if (normalized == null || normalized.isEmpty) {
+        continue;
+      }
+      final compact = normalized.toLowerCase();
+      if (compact == 'null' || compact == 'n/a' || compact == 'na') {
+        continue;
+      }
+
+      final words = compact.split(RegExp(r'\s+'));
+      final allNullish =
+          words.isNotEmpty &&
+          words.every(
+            (word) => word == 'null' || word == 'n/a' || word == 'na',
+          );
+      if (allNullish) {
+        continue;
+      }
+      return normalized;
+    }
+    return null;
+  }
+
+  Map<String, dynamic> _buildPayloadFromRemoteMessage(
+    RemoteMessage message, {
+    String? fallbackTitle,
+    String? fallbackBody,
+  }) {
+    final payload = <String, dynamic>{};
+    message.data.forEach((key, value) {
+      payload[key.toString()] = value;
+    });
+
+    final title = payload['title']?.toString().trim();
+    final body = payload['body']?.toString().trim();
+
+    if ((title == null || title.isEmpty) &&
+        fallbackTitle != null &&
+        fallbackTitle.trim().isNotEmpty) {
+      payload['title'] = fallbackTitle.trim();
+    }
+
+    if ((body == null || body.isEmpty) &&
+        fallbackBody != null &&
+        fallbackBody.trim().isNotEmpty) {
+      payload['body'] = fallbackBody.trim();
+    }
+
+    final type = payload['type']?.toString().trim();
+    if (type == null || type.isEmpty) {
+      if (_isTransferPayload(payload)) {
+        payload['type'] = 'transfer';
+      }
+    }
+
+    return payload;
+  }
+
   void _showReceiptDialog(TransactionModel tx) {
-    final otherName = tx.senderName;
-    final otherPhone = tx.senderPhone;
+    final otherName = _firstNonBlankText([tx.senderName, tx.receiverName]);
+    final otherPhone = _firstNonBlankText([tx.senderPhone, tx.receiverPhone]);
 
     String dateStr = '';
     if (tx.createAt != null) {

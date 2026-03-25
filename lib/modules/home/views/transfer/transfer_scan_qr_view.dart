@@ -45,7 +45,7 @@ class _TransferScanQrViewState extends State<TransferScanQrView> {
 
     _isHandlingResult = true;
     final transferController = Get.find<TransferController>();
-    final isApplied = transferController.applyScannedQrPayload(scannedValue);
+    final isApplied = transferController.applyScannedQr(scannedValue);
 
     if (!mounted) {
       return;

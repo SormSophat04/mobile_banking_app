@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,7 +23,7 @@ class TransferGenerateQrView extends StatelessWidget {
           preferredSize: Size.fromHeight(53.h),
           child: SafeArea(child: CustomPopBar(text: 'My Scan Pay QR')),
         ),
-        body: controller.canGenerateQr
+        body: controller.selectedAccount.value != null
             ? _buildQrContent(controller)
             : _buildMissingAccountContent(),
       ),
@@ -30,8 +31,8 @@ class TransferGenerateQrView extends StatelessWidget {
   }
 
   Widget _buildQrContent(TransferController controller) {
-    final account = controller.selectedAccountModel;
-    final qrPayload = controller.buildScanPayQrPayload();
+    final account = controller.selectedAccount.value;
+    final qrPayload = jsonEncode({'accountNumber': account?.accountNumber});
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 20.h),

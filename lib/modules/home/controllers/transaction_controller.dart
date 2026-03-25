@@ -37,29 +37,24 @@ class TransactionController extends GetxController {
       final response =
           await apiClient.getTransactions(account!.accountId!.toString());
 
-      if (response.isOk && response.body != null) {
-        var data = response.body;
-
-        if (data is String) {
-          try {
-            data = jsonDecode(data);
-          } catch (_) {}
+      if (response.isOk) {
+        if (response.statusCode == 204) {
+          transactions = [];
+          return;
         }
 
-        if (data is List) {
-          transactions =
-              data.map((e) => TransactionModel.fromJson(e)).toList();
-        } else if (data is Map<String, dynamic>) {
-          // Handle paginated response e.g. { "content": [...] }
-          if (data['content'] is List) {
-            transactions = (data['content'] as List)
-                .map((e) => TransactionModel.fromJson(e))
-                .toList();
-          } else {
-            transactions = [TransactionModel.fromJson(data)];
-          }
+        final parsed = _parseTransactionsFromResponse(response.body);
+        if (parsed.recognized) {
+          transactions = parsed.items;
         } else {
-          errorMessage = 'Unrecognized response format.';
+          final fromBodyString = _parseTransactionsFromResponse(
+            response.bodyString,
+          );
+          if (fromBodyString.recognized) {
+            transactions = fromBodyString.items;
+          } else {
+            errorMessage = 'No transactions found in response.';
+          }
         }
 
         // Sort: most recent date first
@@ -83,4 +78,96 @@ class TransactionController extends GetxController {
   void refreshTransactions() {
     fetchTransactions();
   }
+
+  _ParsedTransactions _parseTransactionsFromResponse(dynamic source) {
+    dynamic data = source;
+
+    if (data == null) return const _ParsedTransactions([], false);
+
+    if (data is String) {
+      try {
+        data = jsonDecode(data);
+      } catch (_) {
+        return const _ParsedTransactions([], false);
+      }
+    }
+
+    if (data is List) {
+      final items = data
+          .whereType<Map>()
+          .map(
+            (e) => TransactionModel.fromJson(
+              e.map((k, v) => MapEntry(k.toString(), v)),
+            ),
+          )
+          .toList();
+      return _ParsedTransactions(items, true);
+    }
+
+    if (data is Map<String, dynamic>) {
+      final nestedList = _firstList([
+        data['content'],
+        data['data'],
+        data['transactions'],
+        data['items'],
+        data['result'],
+      ]);
+
+      if (nestedList != null) {
+        final items = nestedList
+            .whereType<Map>()
+            .map(
+              (e) => TransactionModel.fromJson(
+                e.map((k, v) => MapEntry(k.toString(), v)),
+              ),
+            )
+            .toList();
+        return _ParsedTransactions(items, true);
+      }
+
+      final nestedMap = _firstMap([
+        data['data'],
+        data['result'],
+        data['transaction'],
+      ]);
+
+      if (nestedMap != null) {
+        return _parseTransactionsFromResponse(
+          nestedMap.map((k, v) => MapEntry(k.toString(), v)),
+        );
+      }
+
+      // Single transaction object response.
+      return _ParsedTransactions([TransactionModel.fromJson(data)], true);
+    }
+
+    if (data is Map) {
+      return _parseTransactionsFromResponse(
+        data.map((k, v) => MapEntry(k.toString(), v)),
+      );
+    }
+
+    return const _ParsedTransactions([], false);
+  }
+
+  List<dynamic>? _firstList(List<dynamic> candidates) {
+    for (final item in candidates) {
+      if (item is List) return item;
+    }
+    return null;
+  }
+
+  Map<dynamic, dynamic>? _firstMap(List<dynamic> candidates) {
+    for (final item in candidates) {
+      if (item is Map) return item;
+    }
+    return null;
+  }
+}
+
+class _ParsedTransactions {
+  final List<TransactionModel> items;
+  final bool recognized;
+
+  const _ParsedTransactions(this.items, this.recognized);
 }
