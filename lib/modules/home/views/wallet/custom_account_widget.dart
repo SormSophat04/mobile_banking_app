@@ -105,6 +105,11 @@ class CustomAccountWidget extends StatelessWidget {
                     },
                     child: Icon(Icons.copy_rounded, size: 16.sp, color: AppColors.primary),
                   ),
+                  SizedBox(width: 8.w),
+                  GestureDetector(
+                    onTap: () => Get.toNamed(AppRoutes.KHQR, arguments: account),
+                    child: Icon(Icons.qr_code_rounded, size: 20.sp, color: AppColors.primary),
+                  ),
                 ],
               ),
             ],

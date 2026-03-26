@@ -314,6 +314,36 @@ class FirebaseMessagingService {
       payload['phone'],
     ]);
 
+    String? senderAccountNumber = _firstNonBlankText([
+      payload['senderAccountNumber'],
+      payload['fromAccountNumber'],
+      payload['fromAccountNo'],
+      payload['senderAccountNo'],
+      payload['accountNumber'],
+      payload['accountNo'],
+    ]);
+
+    // Cleanup description if it's generic body notification
+    String? finalDescription = (description != null && description.isNotEmpty)
+        ? description
+        : payload['body']?.toString().trim();
+
+    if (finalDescription != null) {
+      final lowerDesc = finalDescription.toLowerCase();
+      // If description is just repeating "You received..." without unique info (except amount), we hide it
+      // but only if it matches the pattern "you received ... from ..."
+      if (lowerDesc.contains('you received') && lowerDesc.contains('from')) {
+        // Extract account number from body if we don't have it yet
+        if (senderAccountNumber == null) {
+          final match = RegExp(r'from\s+([0-9]{6,20})', caseSensitive: false)
+              .firstMatch(finalDescription);
+          if (match != null) {
+            senderAccountNumber = match.group(1);
+          }
+        }
+      }
+    }
+
     return TransactionModel(
       transactionId: int.tryParse(
         payload['transactionId']?.toString().trim() ??
@@ -321,9 +351,7 @@ class FirebaseMessagingService {
             '',
       ),
       amount: amount,
-      description: (description != null && description.isNotEmpty)
-          ? description
-          : payload['body']?.toString().trim(),
+      description: finalDescription,
       status: (status != null && status.isNotEmpty) ? status : 'SUCCESS',
       createAt: createAt,
       referenceNumber: (reference != null && reference.isNotEmpty)
@@ -333,6 +361,7 @@ class FirebaseMessagingService {
           ? senderName
           : null,
       senderPhone: senderPhone,
+      senderAccountNumber: senderAccountNumber,
       senderCurrency: currency,
       currency: currency,
     );
@@ -475,6 +504,10 @@ class FirebaseMessagingService {
   void _showReceiptDialog(TransactionModel tx) {
     final otherName = _firstNonBlankText([tx.senderName, tx.receiverName]);
     final otherPhone = _firstNonBlankText([tx.senderPhone, tx.receiverPhone]);
+    final otherAccount = _firstNonBlankText([
+      tx.senderAccountNumber,
+      tx.receiverAccountNumber,
+    ]);
 
     String dateStr = '';
     if (tx.createAt != null) {
@@ -513,6 +546,10 @@ class FirebaseMessagingService {
               _buildRow('From', otherName ?? 'N/A'),
               SizedBox(height: 16.h),
               _buildRow('Phone number', otherPhone ?? 'N/A'),
+              if (otherAccount != null) ...[
+                SizedBox(height: 16.h),
+                _buildRow('From Account', otherAccount),
+              ],
               if (tx.referenceNumber != null) ...[
                 SizedBox(height: 16.h),
                 _buildRow('Code', '#${tx.referenceNumber}'),

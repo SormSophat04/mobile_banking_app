@@ -7,7 +7,7 @@ import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class ApiClient extends GetConnect {
   static const _storage = FlutterSecureStorage();
-  String? _token, _customerId, _customerName, _customerPhone;
+  String? _token, _refreshToken, _customerId, _customerName, _customerPhone;
 
   @override
   void onInit() {
@@ -23,6 +23,19 @@ class ApiClient extends GetConnect {
 
     httpClient.addResponseModifier((request, response) async {
       if (response.statusCode == 401 && !request.url.path.contains('auth/login')) {
+        final success = await refreshToken();
+        if (success) {
+          final newToken = await _storage.read(key: 'jwt_token');
+          if (newToken != null) {
+            request.headers['Authorization'] = 'Bearer $newToken';
+            return await httpClient.request(
+              request.url.path,
+              request.method,
+              body: request.bodyBytes,
+              headers: request.headers,
+            );
+          }
+        }
         await clearAuth();
         Get.offAllNamed(AppRoutes.LOGIN);
       }
@@ -31,9 +44,15 @@ class ApiClient extends GetConnect {
     super.onInit();
   }
 
-  Future<void> saveToken(String token) async {
+  Future<void> saveToken(String token, {String? refreshToken}) async {
     _token = token;
     await _storage.write(key: 'jwt_token', value: token);
+    
+    if (refreshToken != null) {
+      _refreshToken = refreshToken;
+      await _storage.write(key: 'refresh_token', value: refreshToken);
+    }
+
     final payload = JwtDecoder.decode(token);
     if (payload == null) return;
 
@@ -47,6 +66,8 @@ class ApiClient extends GetConnect {
     final phone = customer['phone'] ?? customer['phoneNumber'] ?? payload['phone'] ?? payload['phoneNumber'];
     if (phone != null) await saveCustomerPhone(phone.toString());
   }
+
+  Future<String?> getRefreshToken() async => _refreshToken ??= await _storage.read(key: 'refresh_token');
 
   Future<void> saveCustomerId(String id) async { _customerId = id; await _storage.write(key: 'customer_id', value: id); }
   Future<String?> getCustomerId() async => _customerId ??= await _storage.read(key: 'customer_id');
@@ -65,8 +86,8 @@ class ApiClient extends GetConnect {
   }
 
   Future<void> clearAuth() async {
-    _token = _customerId = _customerName = _customerPhone = null;
-    for (var k in ['jwt_token', 'customer_id', 'customer_name', 'customer_phone']) { await _storage.delete(key: k); }
+    _token = _refreshToken = _customerId = _customerName = _customerPhone = null;
+    for (var k in ['jwt_token', 'refresh_token', 'customer_id', 'customer_name', 'customer_phone']) { await _storage.delete(key: k); }
   }
 
   // Auth Methods
@@ -86,6 +107,20 @@ class ApiClient extends GetConnect {
   
   Future<Response> getTransaction(String id) => get('transactions/$id');
 
+  Future<Response> getKhqr(String accountId, {double? amount, String? bakongAccountId}) {
+    String url = 'accounts/$accountId/khqr';
+    final queryParams = <String, String>{};
+    if (amount != null) queryParams['amount'] = amount.toString();
+    if (bakongAccountId != null) queryParams['bakongAccountId'] = bakongAccountId;
+    
+    if (queryParams.isNotEmpty) {
+      final queryString = Uri(queryParameters: queryParams).query;
+      url = '$url?$queryString';
+    }
+    return get(url);
+  }
+
+
   Future<void> saveFcmToken(String token) async {
     await _storage.write(key: 'fcm_token', value: token);
     final id = await getCustomerId();
@@ -100,11 +135,22 @@ class ApiClient extends GetConnect {
   }
 
   Future<bool> refreshToken() async {
-    final res = await post('auth/refresh', {});
+    final rt = await getRefreshToken();
+    if (rt == null) return false;
+    
+    final res = await post('auth/refresh', {'refreshToken': rt});
     if (res.isOk && res.body != null) {
-      final token = res.body['token'] ?? res.body['access_token'] ?? res.body['accessToken'] ?? res.body['jwt'];
-      if (token != null) { await saveToken(token.toString()); return true; }
-    } else if (res.statusCode == 401) { await clearAuth(); }
+      final data = res.body;
+      final token = data['token'] ?? data['access_token'] ?? data['accessToken'] ?? data['jwt'];
+      final newRefreshToken = data['refreshToken'] ?? data['refresh_token'];
+      
+      if (token != null) { 
+        await saveToken(token.toString(), refreshToken: newRefreshToken?.toString()); 
+        return true; 
+      }
+    } else if (res.statusCode == 401) { 
+      await clearAuth(); 
+    }
     return false;
   }
 }

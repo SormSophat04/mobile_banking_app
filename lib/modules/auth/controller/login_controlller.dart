@@ -37,7 +37,8 @@ class LoginController extends GetxController {
       if (res.isOk) {
         final data = res.body;
         final token = data['token'] ?? data['access_token'] ?? data['accessToken'] ?? data['jwt'] ?? res.headers?['authorization']?.replaceFirst('Bearer ', '');
-        if (token != null) await apiClient.saveToken(token.toString());
+        final refreshToken = data['refreshToken'] ?? data['refresh_token'];
+        if (token != null) await apiClient.saveToken(token.toString(), refreshToken: refreshToken?.toString());
 
         final customer = data['customer'] ?? data['user'] ?? data;
         final id = customer['customerId'] ?? customer['id'] ?? data['id'] ?? data['sub'];

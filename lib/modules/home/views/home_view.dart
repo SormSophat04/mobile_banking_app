@@ -7,6 +7,7 @@ import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
 import 'package:mobile_banking_app/modules/home/controllers/credit_card_controller.dart';
 import 'package:mobile_banking_app/modules/home/widgets/custom_credit_card.dart';
 import 'package:mobile_banking_app/modules/home/widgets/custom_grid_view.dart';
+import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -34,9 +35,25 @@ class HomeView extends StatelessWidget {
           _buildUserImage(),
           SizedBox(width: 16.w),
           _buildUserName(),
+          SizedBox(width: 12.w),
+          _buildScanButton(),
           Spacer(),
           _buildIconNotification(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildScanButton() {
+    return GestureDetector(
+      onTap: () => Get.toNamed(AppRoutes.TRANSFER_SCAN_QR, arguments: {'fromHome': true}),
+      child: Container(
+        padding: EdgeInsets.all(8.dg),
+        decoration: BoxDecoration(
+          color: AppColors.white.withOpacity(0.2),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(Icons.qr_code_scanner_rounded, color: AppColors.white, size: 24.sp),
       ),
     );
   }

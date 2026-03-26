@@ -9,21 +9,27 @@ class AuthService {
   static const _storage = FlutterSecureStorage();
 
   static Future<String> getInitialRoute() async {
-    final token = await _storage.read(key: 'jwt_token');
-    if (token != null && !JwtDecoder.isExpired(token)) {
+    final refreshToken = await _storage.read(key: 'refresh_token');
+    if (refreshToken != null) {
       try {
         final apiClient = Get.put(ApiClient());
-        await apiClient.refreshToken();
-        if (await _storage.read(key: 'jwt_token') != null) return AppRoutes.MAIN_LAYOUT;
+        final success = await apiClient.refreshToken();
+        if (success) return AppRoutes.MAIN_LAYOUT;
       } catch (e) {
         debugPrint('Auth error: $e');
       }
     }
+
+    final token = await _storage.read(key: 'jwt_token');
+    if (token != null && !JwtDecoder.isExpired(token)) {
+      return AppRoutes.MAIN_LAYOUT;
+    }
+
     await _clearStorage();
     return AppRoutes.LOGIN;
   }
 
   static Future<void> _clearStorage() async {
-    for (var k in ['jwt_token', 'customer_id', 'customer_name']) { await _storage.delete(key: k); }
+    for (var k in ['jwt_token', 'refresh_token', 'customer_id', 'customer_name']) { await _storage.delete(key: k); }
   }
 }
