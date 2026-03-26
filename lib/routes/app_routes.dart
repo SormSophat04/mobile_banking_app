@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 class AppRoutes {
   static const String MAIN_LAYOUT = '/main-layout';
   static const String SECURITY_BLOCKED = '/security-blocked';
@@ -43,6 +45,9 @@ class AppRoutes {
   static const String SAVE_ONLINE = '/save-online';
   static const String CREDIT_CARD = '/credit-card';
   static const String TRANSACTION = '/transaction';
+  static const String KHQR = '/khqr';
+  static const String QR_PAYMENT = '/qr-payment';
+
   static const String BENEFICIARY = '/beneficiary';
   // Beneficiary Screen <->
   static const String ADD_USER_BENEFICIARY = '/add-user-beneficiary';

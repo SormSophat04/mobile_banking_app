@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
 import 'package:mobile_banking_app/modules/home/controllers/pay_bill_controller.dart';
-import 'package:mobile_banking_app/routes/app_routes.dart';
 import 'package:mobile_banking_app/widgets/bill/custom_bill.dart';
 import 'package:mobile_banking_app/widgets/button/custom_button_primary_active.dart';
 import 'package:mobile_banking_app/widgets/topbar/custom_pop_bar.dart';
+import 'package:mobile_banking_app/modules/home/controllers/card_and_account_controller.dart';
 
 class PayRecieptView extends StatelessWidget {
   const PayRecieptView({super.key});
@@ -61,8 +61,16 @@ class PayRecieptView extends StatelessWidget {
               ),
               SizedBox(height: 20.h),
               CustomButtonPrimaryActive(
-                label: 'Pay the bill',
-                onTap: () => Get.toNamed(AppRoutes.PAY_SUCCESS),
+                label: controller.isLoading ? 'Processing...' : 'Pay the bill',
+                onTap: controller.isLoading 
+                    ? null 
+                    : () {
+                        final accountController = Get.find<CardAndAccountController>();
+                        final fromAccount = accountController.accounts.isNotEmpty 
+                            ? accountController.accounts.first.accountNumber ?? "001234"
+                            : "001234";
+                        controller.payBill(fromAccount);
+                      },
               ),
               SizedBox(height: 60.h),
             ],

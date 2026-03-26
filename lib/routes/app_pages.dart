@@ -38,6 +38,10 @@ import 'package:mobile_banking_app/modules/setting/view/app_information/app_info
 import 'package:mobile_banking_app/modules/setting/view/password/password_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/setting_view.dart';
 import 'package:mobile_banking_app/modules/verify_profile/view/verify_profile_view.dart';
+import 'package:mobile_banking_app/modules/home/views/khqr/khqr_view.dart';
+import 'package:mobile_banking_app/modules/home/controllers/khqr_controller.dart';
+import 'package:mobile_banking_app/modules/home/views/qr_payment/qr_payment_view.dart';
+import 'package:mobile_banking_app/modules/home/controllers/qr_payment_controller.dart';
 import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class AppPages {
@@ -198,6 +202,20 @@ class AppPages {
       name: AppRoutes.TRANSACTION,
       page: () => const TransactionView(),
       middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.KHQR,
+      page: () => const KhqrView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<KhqrController>(() => KhqrController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.QR_PAYMENT,
+      page: () => const QrPaymentView(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut<QrPaymentController>(() => QrPaymentController());
+      }),
     ),
     GetPage(
       name: AppRoutes.BENEFICIARY,

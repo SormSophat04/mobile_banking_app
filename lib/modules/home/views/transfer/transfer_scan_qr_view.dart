@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:mobile_banking_app/core/constants/app_colors.dart';
 import 'package:mobile_banking_app/core/constants/app_text_styles.dart';
 import 'package:mobile_banking_app/modules/home/controllers/transfer_controller.dart';
+import 'package:mobile_banking_app/routes/app_routes.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TransferScanQrView extends StatefulWidget {
   const TransferScanQrView({super.key});
@@ -27,43 +29,66 @@ class _TransferScanQrViewState extends State<TransferScanQrView> {
     super.dispose();
   }
 
-  Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_isHandlingResult) {
+  void _onDetect(BarcodeCapture capture) {
+    if (_isHandlingResult) return;
+    
+    final scannedValue = capture.barcodes
+        .map((barcode) => barcode.rawValue?.trim() ?? barcode.displayValue?.trim() ?? '')
+        .firstWhere((value) => value.isNotEmpty, orElse: () => '');
+
+    if (scannedValue.isEmpty) return;
+
+    _processPayload(scannedValue);
+  }
+
+  void _processPayload(String payload) {
+    _isHandlingResult = true;
+    
+    final arguments = Get.arguments as Map<String, dynamic>?;
+    final bool fromHome = arguments?['fromHome'] ?? false;
+
+    if (fromHome) {
+      Get.offNamed(AppRoutes.QR_PAYMENT, arguments: payload);
+    } else {
+      final transferController = Get.find<TransferController>();
+      final isApplied = transferController.applyScannedQr(payload);
+
+      if (isApplied) {
+        Get.back();
+        Get.snackbar('Scanned', 'Account number has been filled automatically');
+      } else {
+        _isHandlingResult = false;
+        Get.snackbar('Invalid QR', 'No valid account number found in this QR');
+      }
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (image == null) return;
+    
+    _isHandlingResult = true;
+    final BarcodeCapture? capture = await _scannerController.analyzeImage(image.path);
+    
+    if (capture == null || capture.barcodes.isEmpty) {
+      _isHandlingResult = false;
+      Get.snackbar('No QR Found', 'Could not detect a QR code in the selected image');
       return;
     }
 
     final scannedValue = capture.barcodes
-        .map(
-          (barcode) =>
-              barcode.rawValue?.trim() ?? barcode.displayValue?.trim() ?? '',
-        )
+        .map((barcode) => barcode.rawValue?.trim() ?? barcode.displayValue?.trim() ?? '')
         .firstWhere((value) => value.isNotEmpty, orElse: () => '');
 
     if (scannedValue.isEmpty) {
-      return;
-    }
-
-    _isHandlingResult = true;
-    final transferController = Get.find<TransferController>();
-    final isApplied = transferController.applyScannedQr(scannedValue);
-
-    if (!mounted) {
-      return;
-    }
-
-    if (!isApplied) {
       _isHandlingResult = false;
-      Get.snackbar('Invalid QR', 'No valid account number found in this QR');
+      Get.snackbar('No QR Found', 'Could not detect a QR code in the selected image');
       return;
     }
 
-    await _scannerController.stop();
-    if (!mounted) {
-      return;
-    }
-
-    Get.back();
-    Get.snackbar('Scanned', 'Account number has been filled automatically');
+    _processPayload(scannedValue); // Call _processPayload for gallery image
   }
 
   @override
@@ -147,6 +172,12 @@ class _TransferScanQrViewState extends State<TransferScanQrView> {
                 IconButton.filled(
                   onPressed: _scannerController.switchCamera,
                   icon: const Icon(Icons.flip_camera_android_rounded),
+                ),
+                SizedBox(width: 10.w),
+                IconButton.filled(
+                  onPressed: _pickFromGallery,
+                  icon: const Icon(Icons.image_rounded),
+                  style: IconButton.styleFrom(backgroundColor: AppColors.primary),
                 ),
               ],
             ),

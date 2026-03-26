@@ -45,9 +45,43 @@ class TransferController extends GetxController {
   }
 
   bool applyScannedQr(String payload) {
-    final Map<String, dynamic> data = (payload.trim().startsWith('{')) ? jsonDecode(payload) : {'accountNumber': payload.trim()};
-    final acc = data['accountNumber']?.toString().replaceAll(RegExp(r'\s+'), '');
-    if (acc != null && acc.isNotEmpty) { cardNumberController.text = acc; return true; }
+    if (payload.trim().isEmpty) return false;
+
+    // 1. Try JSON (for internal app QRs)
+    try {
+      if (payload.trim().startsWith('{')) {
+        final data = jsonDecode(payload);
+        final acc = data['accountNumber']?.toString().replaceAll(RegExp(r'\s+'), '');
+        if (acc != null && acc.isNotEmpty) {
+          cardNumberController.text = acc;
+          if (data['amount'] != null) amountController.text = data['amount'].toString();
+          return true;
+        }
+      }
+    } catch (_) {}
+
+    // 2. Try EMVCo/KHQR Parsing (Simple version)
+    // Looking for merchant account info (tag 29-31) which contains the account number
+    // In KHQR, tag 29 is common.
+    final accMatch = RegExp(r'29\d{2}00\d{2}[\w\d]+01(\d{2})(\d+)').firstMatch(payload);
+    if (accMatch != null) {
+      final acc = accMatch.group(2);
+      if (acc != null) {
+        cardNumberController.text = acc;
+        // Try to find amount (Tag 54)
+        final amtMatch = RegExp(r'54(\d{2})(\d+\.?\d*)').firstMatch(payload);
+        if (amtMatch != null) amountController.text = amtMatch.group(2) ?? '';
+        return true;
+      }
+    }
+
+    // 3. Fallback: Check if it's just a number
+    final cleanPayload = payload.trim().replaceAll(RegExp(r'\s+'), '');
+    if (RegExp(r'^\d+$').hasMatch(cleanPayload)) {
+      cardNumberController.text = cleanPayload;
+      return true;
+    }
+
     return false;
   }
 
