@@ -20,6 +20,7 @@ class AppRoutes {
 
   // Search Screen ->
   static const String BRANCH = '/branch';
+  static const String LOAN_CALCULATOR = '/loan-calculator';
   static const String INTEREST_RATE = '/interest-rate';
   static const String EXCHANGE_RATE = '/exchange-rate';
   static const String EXCHANGE = '/exchange';
@@ -43,6 +44,9 @@ class AppRoutes {
   static const String PAY_SUCCESS = '/pay-success';
 
   static const String SAVE_ONLINE = '/save-online';
+  static const String FIXED_DEPOSIT = '/fixed-deposit';
+  static const String LOAN = '/loan';
+
   static const String CREDIT_CARD = '/credit-card';
   static const String TRANSACTION = '/transaction';
   static const String KHQR = '/khqr';

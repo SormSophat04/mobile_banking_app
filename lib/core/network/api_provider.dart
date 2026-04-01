@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -34,7 +35,6 @@ class ApiProvider {
           return handler.next(options);
         },
       ),
-      LogInterceptor(requestBody: true, responseBody: true), // Optional: for debugging
       _ErrorInterceptor(),
     ]);
 
@@ -61,13 +61,32 @@ class _ErrorInterceptor extends Interceptor {
         message = 'Connection timed out';
         break;
       case DioExceptionType.badResponse:
+        String? serverMessage;
+        final data = err.response?.data;
+
+        if (data is Map) {
+          final map = Map<String, dynamic>.from(data);
+          serverMessage =
+              map['message']?.toString() ??
+              map['error']?.toString() ??
+              map['detail']?.toString();
+        } else if (data is String && data.trim().isNotEmpty) {
+          serverMessage = data.trim();
+        } else if (data is List<int> && data.isNotEmpty) {
+          try {
+            serverMessage = utf8.decode(data, allowMalformed: true).trim();
+          } catch (_) {
+            serverMessage = null;
+          }
+        }
+
         message = switch (err.response?.statusCode) {
           400 => 'Invalid request',
           401 => 'Unauthorized access',
           404 => 'Resource not found',
           409 => 'Conflict occurred',
           500 => 'Internal server error',
-          _ => err.response?.data?['message'] ?? 'Error ${err.response?.statusCode}',
+          _ => serverMessage ?? 'Error ${err.response?.statusCode}',
         };
         break;
       case DioExceptionType.connectionError:
