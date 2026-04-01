@@ -8,8 +8,11 @@ import 'package:mobile_banking_app/modules/home/controllers/beneficiary_controll
 import 'package:mobile_banking_app/modules/home/controllers/credit_card_controller.dart';
 import 'package:mobile_banking_app/modules/home/controllers/card_and_account_controller.dart';
 import 'package:mobile_banking_app/modules/home/controllers/home_controller.dart';
+import 'package:mobile_banking_app/modules/home/controllers/khqr_controller.dart';
+import 'package:mobile_banking_app/modules/home/controllers/loan_controller.dart';
 import 'package:mobile_banking_app/modules/home/controllers/pay_bill_controller.dart';
 import 'package:mobile_banking_app/modules/home/controllers/prepain_controller.dart';
+import 'package:mobile_banking_app/modules/home/controllers/qr_payment_controller.dart';
 import 'package:mobile_banking_app/modules/home/controllers/save_online_controller.dart';
 import 'package:mobile_banking_app/modules/home/controllers/transaction_controller.dart';
 import 'package:mobile_banking_app/modules/home/controllers/transfer_controller.dart';
@@ -78,5 +81,8 @@ class InitialBinding implements Bindings {
     );
 
     Get.lazyPut<SecurityController>(() => SecurityController(), fenix: true);
+    Get.lazyPut<LoanController>(() => LoanController(), fenix: true);
+    Get.lazyPut<QrPaymentController>(() => QrPaymentController(), fenix: true);
+    Get.lazyPut<KhqrController>(() => KhqrController(), fenix: true);
   }
 }

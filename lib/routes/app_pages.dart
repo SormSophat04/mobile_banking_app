@@ -6,12 +6,15 @@ import 'package:mobile_banking_app/modules/auth/views/reset_password_view.dart';
 import 'package:mobile_banking_app/modules/auth/views/reset_success_view.dart';
 import 'package:mobile_banking_app/modules/auth/views/sing_up_view.dart';
 import 'package:mobile_banking_app/modules/auth/views/verify_code_view.dart';
+import 'package:mobile_banking_app/modules/home/controllers/khqr_controller.dart';
+import 'package:mobile_banking_app/modules/home/controllers/qr_payment_controller.dart';
 import 'package:mobile_banking_app/modules/home/views/beneficiary/add_user_beneficiary.dart';
 import 'package:mobile_banking_app/modules/home/views/beneficiary/beneficiary_view.dart';
 import 'package:mobile_banking_app/modules/home/views/pay_bill/pay_reciept_view.dart';
 import 'package:mobile_banking_app/modules/home/views/pay_bill/pay_search_code_view.dart';
 import 'package:mobile_banking_app/modules/home/views/pay_bill/pay_success_view.dart';
 import 'package:mobile_banking_app/modules/home/views/prepaid/prepaid_success_view.dart';
+import 'package:mobile_banking_app/modules/home/views/save_online/loan/loan_view.dart';
 import 'package:mobile_banking_app/modules/home/views/transfer/confirm_transfer_view.dart';
 import 'package:mobile_banking_app/modules/home/views/transfer/transfer_generate_qr_view.dart';
 import 'package:mobile_banking_app/modules/home/views/transfer/transfer_scan_qr_view.dart';
@@ -32,6 +35,7 @@ import 'package:mobile_banking_app/modules/search/view/branch_view.dart';
 import 'package:mobile_banking_app/modules/search/view/exchage_rate_view.dart';
 import 'package:mobile_banking_app/modules/search/view/exchage_view.dart';
 import 'package:mobile_banking_app/modules/search/view/interest_rate_view.dart';
+import 'package:mobile_banking_app/modules/search/view/loan_calculator_view.dart';
 import 'package:mobile_banking_app/modules/search/view/search_view.dart';
 import 'package:mobile_banking_app/modules/security/view/blocked_view.dart';
 import 'package:mobile_banking_app/modules/setting/view/app_information/app_information_view.dart';
@@ -39,9 +43,8 @@ import 'package:mobile_banking_app/modules/setting/view/password/password_view.d
 import 'package:mobile_banking_app/modules/setting/view/setting_view.dart';
 import 'package:mobile_banking_app/modules/verify_profile/view/verify_profile_view.dart';
 import 'package:mobile_banking_app/modules/home/views/khqr/khqr_view.dart';
-import 'package:mobile_banking_app/modules/home/controllers/khqr_controller.dart';
 import 'package:mobile_banking_app/modules/home/views/qr_payment/qr_payment_view.dart';
-import 'package:mobile_banking_app/modules/home/controllers/qr_payment_controller.dart';
+import 'package:mobile_banking_app/modules/home/controllers/loan_controller.dart';
 import 'package:mobile_banking_app/routes/app_routes.dart';
 
 class AppPages {
@@ -194,6 +197,14 @@ class AppPages {
       middlewares: [_securityMiddleware],
     ),
     GetPage(
+      name: AppRoutes.LOAN,
+      page: () => const LoanView(),
+      middlewares: [_securityMiddleware],
+      binding: BindingsBuilder(() {
+        Get.lazyPut<LoanController>(() => LoanController());
+      }),
+    ),
+    GetPage(
       name: AppRoutes.CREDIT_CARD,
       page: () => const CreditCardView(),
       middlewares: [_securityMiddleware],
@@ -239,6 +250,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.BRANCH,
       page: () => const BranchView(),
+      middlewares: [_securityMiddleware],
+    ),
+    GetPage(
+      name: AppRoutes.LOAN_CALCULATOR,
+      page: () => const LoanCalculatorView(),
       middlewares: [_securityMiddleware],
     ),
     GetPage(

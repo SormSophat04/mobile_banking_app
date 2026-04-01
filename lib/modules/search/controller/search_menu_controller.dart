@@ -11,6 +11,12 @@ class SearchMenuController extends GetxController {
       'route': AppRoutes.BRANCH,
     },
     {
+      'title': 'Loan calculator',
+      'subtitle': 'Calculate your loan payments',
+      'image': AppAssets.searchExchange,
+      'route': AppRoutes.LOAN_CALCULATOR,
+    },
+    {
       'title': 'Interest rate',
       'subtitle': 'Search for interest rate',
       'image': AppAssets.searchInterestRate,

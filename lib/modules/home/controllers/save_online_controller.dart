@@ -8,13 +8,13 @@ class SaveOnlineController extends GetxController {
       'title': 'Add',
       'subtitle': 'Add new save online account',
       'icon': AppAssets.electricBill,
-      'route': AppRoutes.ELECTRIC_BILL,
+      'route': AppRoutes.FIXED_DEPOSIT,
     },
     {
       'title': 'Management',
       'subtitle': 'Manage your save online account',
       'icon': AppAssets.watherBill,
-      'route': AppRoutes.WATER_BILL,
+      'route': AppRoutes.LOAN,
     },
   ];
 }
